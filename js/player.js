@@ -1,12 +1,10 @@
-const gravity = 0.5;
-
-
 export default class Player {
     constructor() {
-        this.pos = { x: 100, y: 200 }
-        this.vel = { x: 0, y: 1 }
+        this.pos = { x: 100, y: 100 }
+        this.vel = { x: 0, y: 0 }
         this.width = 25;
         this.height = 25;
+        this.gravity = 0.25;
     }
 
     draw(context) {
@@ -19,8 +17,11 @@ export default class Player {
         this.pos.y += this.vel.y;
         this.draw(context);
 
-        if (this.pos.y + this.height + this.vel.y <= ch) { this.vel.y += gravity }
-        else { this.vel.y = 0 }
-        
+        if (this.pos.y + this.height + this.vel.y <= ch) { this.vel.y += this.gravity }
+
+        // Potential Game Over screen if player falls below the canvas height 
+        // if (this.pos.y > ch) 
     }
+
 }
+
