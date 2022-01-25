@@ -1,17 +1,20 @@
 import Player from "./player.js";
-import Ground from "./ground.js";
 import Background from "./background.js";
+import { makeTile, tileMatrix } from "./matrix.js";
 import { checkCollision, keyStrokes } from "./logic.js";
 
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
-const cw = canvas.width = 600;
-const ch = canvas.height = 600;
+const tileSize = 64;
+const cw = canvas.width = 1000;
+const ch = canvas.height = tileMatrix.length * tileSize;
 
 const player = new Player();
-const grounds = [new Ground(0, 400), new Ground(100, 300), new Ground(300, 500), new Ground(550, 500)];
 const background = new Background(0,0);
+
+
+const tiles = makeTile(0, 0, context, tileSize);
 
 function main() {
 
@@ -19,18 +22,13 @@ function main() {
 
     background.draw(context, ch);
     player.update(context, ch);
-    grounds.forEach(ground => {
-        ground.draw(context);
-        keyStrokes(player, ground, background, cw);
-        checkCollision(player, ground);
-    })
-
-
     
-
+    tiles.forEach(tile => {
+        tile.drawTile();
+        checkCollision(player, tile);
+        keyStrokes(player, tile, background, cw);
+    });
+    
     requestAnimationFrame(main);
 }
-
 main();
-
-
