@@ -7,28 +7,58 @@ const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
 const tileSize = 64;
-const cw = canvas.width = 1000;
+const cw = canvas.width = 1024;
 const ch = canvas.height = tileMatrix.length * tileSize;
 
-const player = new Player();
 const background = new Background(0,0);
-
+const player = new Player();
 
 const tiles = makeTile(0, 0, context, tileSize);
+const tilesPosition = [];
 
 function main() {
 
     context.clearRect(0, 0, cw, ch);
 
-    background.draw(context, ch);
+    background.draw(context, cw, ch);
     player.update(context, ch);
     
     tiles.forEach(tile => {
         tile.drawTile();
-        checkCollision(player, tile);
         keyStrokes(player, tile, background, cw);
+        checkCollision(player, tile);
+        tilesPosition.push(tile.pos.x);
+        // if (player.pos.x > 1000) {
+        //     tile.pos.x -= 2;
+        //     background.pos.x -= 0.25;
+        // }
     });
+    
+    // Lose Condition
+    if (player.pos.y > ch) lose(tilesPosition);
     
     requestAnimationFrame(main);
 }
 main();
+
+function lose(tilesPosition) {
+
+
+    context.clearRect(0,0, 1024, ch);
+    context.font = "50px monospace";
+    context.fillText("Press R to restart!", cw / 4, ch/2);
+    addEventListener("keydown", key => {
+        if (key.code === "KeyR") {
+            player.pos.x = 0;
+            player.pos.y = 100;
+            background.pos.x = 0;
+            tiles.forEach((tile, tileIndex) => {
+                tile.pos.x = tilesPosition[tileIndex];
+            })
+        }
+    })
+
+
+}
+
+
