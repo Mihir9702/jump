@@ -1,4 +1,4 @@
-import { Tile } from "./tile.js";
+import Tile from "./tile.js";
 
 export const tileMatrix = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],

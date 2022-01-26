@@ -5,7 +5,8 @@ const keys = {
 }
 
 export function checkCollision(player, tile) {
-    // Inside the tile and the y pos > tile's y pos
+
+    // Player is inbounds of the Tiles X Position and the X Position + TileWidth 
     if (
         player.pos.y + player.height <= tile.pos.y 
         && player.pos.y + player.height + player.vel.y >= tile.pos.y
@@ -25,21 +26,16 @@ export function checkCollision(player, tile) {
         ) { 
             // Player below the tile
             player.pos.y = tile.pos.y + tile.height + 25;
-            player.vel.y = 0;
+            player.vel.y = 0; 
         }
-    
-
 }
 
 
 
-export function keyStrokes(player, tile, background, cw) {
-
+export function keyStrokes(player, tile, background) {
 
     // Increase player's Y velocity 
-    if (keys.up.pressed) {
-        player.vel.y = -5;
-    }
+    if (keys.up.pressed) player.vel.y = -4
 
     // Camera functionality while increasing/decreasing player's X velocity
     if (keys.right.pressed) {
@@ -51,10 +47,6 @@ export function keyStrokes(player, tile, background, cw) {
         tile.pos.x += 5;
         background.pos.x += 0.35;
     }
-
-
-    // Create Win condition for player if player reaches a certain x position
-    // if (player.x.pos >= 10000) {} 
 }
 
 

@@ -2,6 +2,7 @@ import Player from "./player.js";
 import Background from "./background.js";
 import { makeTile, tileMatrix } from "./matrix.js";
 import { checkCollision, keyStrokes } from "./logic.js";
+import { lose } from "./newGame.js";
 
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
@@ -13,8 +14,8 @@ const ch = canvas.height = tileMatrix.length * tileSize;
 const background = new Background(0,0);
 const player = new Player();
 
-const tiles = makeTile(0, 0, context, tileSize);
-const tilesPosition = [];
+const tiles = makeTile(0, 0, context, tileSize); // Array of Tiles
+const tilesPosition = []; // Tiles X Position
 
 function main() {
 
@@ -25,40 +26,20 @@ function main() {
     
     tiles.forEach(tile => {
         tile.drawTile();
-        keyStrokes(player, tile, background, cw);
+        keyStrokes(player, tile, background);
         checkCollision(player, tile);
         tilesPosition.push(tile.pos.x);
-        // if (player.pos.x > 1000) {
-        //     tile.pos.x -= 2;
-        //     background.pos.x -= 0.25;
-        // }
     });
     
-    // Lose Condition
-    if (player.pos.y > ch) lose(tilesPosition);
+    // Win / Lose Condition
+    if (player.pos.x > 850) win(context, cw, ch, player, tiles, tilesPosition, background);
+    if (player.pos.y > ch) lose(context, cw, ch, player, tiles, tilesPosition, background);
     
     requestAnimationFrame(main);
 }
 main();
 
-function lose(tilesPosition) {
 
 
-    context.clearRect(0,0, 1024, ch);
-    context.font = "50px monospace";
-    context.fillText("Press R to restart!", cw / 4, ch/2);
-    addEventListener("keydown", key => {
-        if (key.code === "KeyR") {
-            player.pos.x = 0;
-            player.pos.y = 100;
-            background.pos.x = 0;
-            tiles.forEach((tile, tileIndex) => {
-                tile.pos.x = tilesPosition[tileIndex];
-            })
-        }
-    })
-
-
-}
 
 
