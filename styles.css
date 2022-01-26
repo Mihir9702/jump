@@ -8,8 +8,10 @@ body {
   display: grid;
   place-items: center;
   height: 100vh;
+  background-color: #1d1f20;
 }
 
 #canvas {
   height: 100vmin;
+  place-items: center;
 }

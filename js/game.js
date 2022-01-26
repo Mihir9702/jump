@@ -2,7 +2,7 @@ import Player from "./player.js";
 import Background from "./background.js";
 import { makeTile, tileMatrix } from "./matrix.js";
 import { checkCollision, keyStrokes } from "./logic.js";
-import { lose } from "./winLose.js";
+import { win, lose } from "./winLose.js";
 
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
@@ -33,8 +33,8 @@ function main() {
 
     
     // Win / Lose Condition
-    // if (player.pos.x > 850) win(context, cw, ch, player, tiles, tilesPosition, background);
-    if (player.pos.y > ch) lose(context, cw, ch, player, tiles, tilesPosition, background);
+    if (player.pos.x >= 900 && player.pos.y < ch && player.vel.y === 0) { win(context, cw, ch); }
+    if (player.pos.y > ch) { lose(context, cw, ch, player, tiles, tilesPosition, background) }
     
     requestAnimationFrame(main);
 }
@@ -42,6 +42,7 @@ function main() {
 main();
 
 
+// 644 422
 
 
 
