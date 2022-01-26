@@ -15,14 +15,11 @@ export default class Player {
     update(context, ch) {
         this.pos.x += this.vel.x;
         this.pos.y += this.vel.y;
-        this.draw(context);
-
+        
         // Add gravity to the game
         if (this.pos.y + this.height + this.vel.y <= ch) { this.vel.y += this.gravity }
-
-        // Potential Game Over screen if player falls below the canvas height 
+        
+        this.draw(context);
     }
-
-
 }
 

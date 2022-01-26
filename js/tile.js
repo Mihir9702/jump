@@ -1,4 +1,4 @@
-export class Tile {
+export default class Tile {
     constructor(x, y, context, tileSize) {
         this.pos = { x, y }
         this.context = context;
