@@ -51,6 +51,7 @@ export function keyStrokes(player, tile, background) {
         tile.pos.x += 8;
         background.pos.x += 0.05;
     }
+
 }
 
 
