@@ -1,25 +1,28 @@
 export default class Player {
-    constructor() {
-        this.pos = { x: 100, y: 100 }
+    constructor(context, ch) {
+        this.pos = { x: 150, y: 0 }
         this.vel = { x: 0, y: 0 }
         this.width = 25;
         this.height = 25;
         this.gravity = 1;
+        this.jump = false;
+        this.context = context;
+        this.canvasHeight = ch;
     }
 
-    draw(context) {
-        context.fillStyle = "aqua";
-        context.fillRect(this.pos.x, this.pos.y, 25, 25);
+    draw() {
+        this.context.fillStyle = "aqua";
+        this.context.fillRect(this.pos.x, this.pos.y, 25, 25);
     }
 
-    update(context, ch) {
+    update() {
         this.pos.x += this.vel.x;
         this.pos.y += this.vel.y;
         
-        // Add gravity to the game
-        if (this.pos.y + this.height + this.vel.y <= ch) { this.vel.y += this.gravity }
+        // Simulate gravity by decreasing the player's Y velocity
+        if (this.pos.y + this.height + this.vel.y <= this.canvasHeight) { this.vel.y += this.gravity }
         
-        this.draw(context);
+        this.draw();
     }
 }
 
