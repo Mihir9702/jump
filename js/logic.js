@@ -1,12 +1,12 @@
 const keys = {
     up: { pressed: false },
     right: { pressed: false },
-    left: { pressed: false },
+    left: { pressed: false }
 }
 
-export function checkCollision(player, tile) {
+export function checkCollision(player, tile, background) {
 
-    // Player is inbounds of the Tiles X Position and the X Position + TileWidth 
+    // Player is inbounds of the Tiles on the X Plane  
     if (
         player.pos.y + player.height <= tile.pos.y 
         && player.pos.y + player.height + player.vel.y >= tile.pos.y
@@ -16,6 +16,7 @@ export function checkCollision(player, tile) {
             // Player on top of tile
             player.vel.y = 0; 
             player.vel.x = 0; 
+            player.jump = false;
         }
 
     if (
@@ -35,17 +36,20 @@ export function checkCollision(player, tile) {
 export function keyStrokes(player, tile, background) {
 
     // Increase player's Y velocity 
-    if (keys.up.pressed) player.vel.y = -4
+    if (keys.up.pressed && !player.jump) {
+        player.jump = true;
+        player.vel.y = -15;
+    } 
 
     // Camera functionality while increasing/decreasing player's X velocity
     if (keys.right.pressed) {
         player.vel.x = 2;
-        tile.pos.x -= 5;
-        background.pos.x -= 0.35;
+        tile.pos.x -= 8;
+        background.pos.x -= 0.05;
     } else if (keys.left.pressed) {
         player.vel.x = -2;
-        tile.pos.x += 5;
-        background.pos.x += 0.35;
+        tile.pos.x += 8;
+        background.pos.x += 0.05;
     }
 }
 
