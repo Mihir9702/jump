@@ -24,12 +24,7 @@ const instructions = new Instructions(context);
 const tiles = makeTile(0, 0, context, tileSize); 
 const tilesXPosition = []; 
 
-background.onload = () => {
-    background.draw();
-    player.update();
-    instructions.draw();
-}
-
+background.onload();
 
 function main() {
     canvas.style.display = "grid";
