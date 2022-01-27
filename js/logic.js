@@ -4,7 +4,7 @@ const keys = {
     left: { pressed: false }
 }
 
-export function checkCollision(player, tile, background) {
+export function checkCollision(player, tile) {
 
     // Player is inbounds of the Tiles on the X Plane  
     if (

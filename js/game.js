@@ -1,9 +1,9 @@
-import Player from "/Player.js";
-import Background from "/Background.js";
-import Instructions from "/Instructions.js";
-import { makeTile, tileMatrix } from "/Matrix.js";
-import { checkCollision, keyStrokes } from "/Logic.js";
-import { win, lose } from "/WinLose.js";
+import Player from "./Player.js";
+import Background from "./Background.js";
+import Instructions from "./Instructions.js";
+import { makeTile, tileMatrix } from "./Matrix.js";
+import { checkCollision, keyStrokes } from "./Logic.js";
+import { win, lose } from "./WinLose.js";
 
 // Grabbing elements from the DOM
 const mainMenu = document.querySelector(".mainMenu");
@@ -36,7 +36,7 @@ function main() {
     tiles.forEach(tile => {
         tile.drawTile();
         keyStrokes(player, tile, background, instructions);
-        checkCollision(player, tile, background);
+        checkCollision(player, tile);
         tilesXPosition.push(tile.pos.x);
     });
     
