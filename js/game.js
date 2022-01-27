@@ -5,28 +5,31 @@ import { makeTile, tileMatrix } from "./Matrix.js";
 import { checkCollision, keyStrokes } from "./Logic.js";
 import { win, lose } from "./WinLose.js";
 
+// Grabbing elements from the DOM
 const mainMenu = document.querySelector(".mainMenu");
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
+// Resizing the canvas
 const tileSize = 64;
 const cw = canvas.width = 1024;
 const ch = canvas.height = tileMatrix.length * tileSize;
 
-const background = new Background(-100,0);
+// Instances of the classes
+const background = new Background(-100,0, context, ch);
 const player = new Player(context, ch);
 const instructions = new Instructions(context);
 
+// Array of the tiles
 const tiles = makeTile(0, 0, context, tileSize); 
 const tilesXPosition = []; 
 
 
 function main() {
     canvas.style.display = "grid";
-    
     context.clearRect(0, 0, cw, ch);
     
-    background.draw(context, ch);
+    background.draw();
     instructions.draw();
     player.update();
 
