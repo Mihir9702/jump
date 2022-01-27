@@ -5,7 +5,7 @@ export default class Tile {
         this.width = tileSize;
         this.height = tileSize / 4;
         this.image = new Image();
-        this.image.src = "../images/PLATFORM.png";
+        this.image.src = "./images/PLATFORM.png";
 
         this.drawTile();
     }
