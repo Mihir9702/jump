@@ -24,6 +24,10 @@ const instructions = new Instructions(context);
 const tiles = makeTile(0, 0, context, tileSize); 
 const tilesXPosition = []; 
 
+background.onload = () => {
+    background.draw();
+}
+
 
 function main() {
     canvas.style.display = "grid";
@@ -34,12 +38,10 @@ function main() {
     player.update();
 
     tiles.forEach(tile => {
-        tile.onload = () => {
-            tile.drawTile();
-            keyStrokes(player, tile, background, instructions);
-            checkCollision(player, tile);
-            tilesXPosition.push(tile.pos.x);
-        }
+        tile.drawTile();
+        keyStrokes(player, tile, background, instructions);
+        checkCollision(player, tile);
+        tilesXPosition.push(tile.pos.x);
     });
     
     
