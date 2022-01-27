@@ -1,4 +1,4 @@
-import Tile from "./Tile.js";
+import Tile from "./tile.js";
 
 // Tile Matrix to represent the level map
 // 0 represents the open space where there are no tiles

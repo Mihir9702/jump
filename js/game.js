@@ -1,9 +1,9 @@
-import Player from "./Player.js";
-import Background from "./Background.js";
-import Instructions from "./Instructions.js";
-import { makeTile, tileMatrix } from "./Matrix.js";
-import { checkCollision, keyStrokes } from "./Logic.js";
-import { win, lose } from "./WinLose.js";
+import Player from "./player.js";
+import Background from "./background.js";
+import Instructions from "./instructions.js";
+import { makeTile, tileMatrix } from "./matrix.js";
+import { checkCollision, keyStrokes } from "./logic.js";
+import { win, lose } from "./winLose.js";
 
 // Grabbing elements from the DOM
 const mainMenu = document.querySelector(".mainMenu");
