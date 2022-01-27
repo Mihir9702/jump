@@ -21,6 +21,7 @@ body {
   border: 2px solid var(--gray);
   border-radius: 5px;
   height: 100vmin;
+  color: var(--gray);
 }
 
 .mainMenu {
