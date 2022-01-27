@@ -8,10 +8,11 @@ export default class Player {
         this.jump = false;
         this.context = context;
         this.canvasHeight = ch;
+        this.fillStyle = "aqua";
     }
-
+    
     draw() {
-        this.context.fillStyle = "aqua";
+        this.context.fillStyle = this.fillStyle;
         this.context.fillRect(this.pos.x, this.pos.y, 25, 25);
     }
 

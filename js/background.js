@@ -1,11 +1,11 @@
 export default class Background {
     constructor(x, y) {
         this.pos = { x, y }
+        this.background = new Image();
+        this.background.src = "../images/backgrounds.jpg";
     }
 
     draw(context, ch) {
-        const background = new Image();
-        background.src = "../images/backgrounds.jpg";
-        context.drawImage(background, this.pos.x, this.pos.y, background.width * 2, ch);
+        context.drawImage(this.background, this.pos.x, this.pos.y, this.background.width * 2, ch);
     }
 }
