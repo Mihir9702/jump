@@ -4,12 +4,13 @@ export default class Tile {
         this.context = context;
         this.width = tileSize;
         this.height = tileSize / 4;
+        this.image = new Image();
+        this.image.src = "../images/PLATFORM.png";
+
         this.drawTile();
     }
 
     drawTile() {
-        const image = new Image();
-        image.src = "../images/PLATFORM.png";
-        this.context.drawImage(image, this.pos.x, this.pos.y, this.width, this.height);
+        this.context.drawImage(this.image, this.pos.x, this.pos.y, this.width, this.height);
     }
 }

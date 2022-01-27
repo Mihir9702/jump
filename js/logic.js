@@ -33,7 +33,7 @@ export function checkCollision(player, tile, background) {
 
 
 
-export function keyStrokes(player, tile, background) {
+export function keyStrokes(player, tile, background, instructions) {
 
     // Increase player's Y velocity 
     if (keys.up.pressed && !player.jump) {
@@ -46,10 +46,12 @@ export function keyStrokes(player, tile, background) {
         player.vel.x = 2;
         tile.pos.x -= 8;
         background.pos.x -= 0.05;
+        instructions.x -= 0.1;
     } else if (keys.left.pressed) {
         player.vel.x = -2;
         tile.pos.x += 8;
         background.pos.x += 0.05;
+        instructions.x += 0.1;
     }
 
 }
