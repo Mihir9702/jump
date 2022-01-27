@@ -26,6 +26,8 @@ const tilesXPosition = [];
 
 background.onload = () => {
     background.draw();
+    player.update();
+    instructions.draw();
 }
 
 
@@ -34,8 +36,8 @@ function main() {
     context.clearRect(0, 0, cw, ch);
     
     background.draw();
-    instructions.draw();
     player.update();
+    instructions.draw();
 
     tiles.forEach(tile => {
         tile.drawTile();
