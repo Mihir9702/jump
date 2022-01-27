@@ -29,11 +29,9 @@ function main() {
     canvas.style.display = "grid";
     context.clearRect(0, 0, cw, ch);
     
-    background.onload = () => {
-        background.draw();
-        instructions.draw();
-        player.update();
-    }
+    background.draw();
+    instructions.draw();
+    player.update();
 
     tiles.forEach(tile => {
         tile.onload = () => {
