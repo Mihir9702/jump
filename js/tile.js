@@ -7,7 +7,9 @@ export default class Tile {
         this.image = new Image();
         this.image.src = "./images/PLATFORM.png";
 
-        this.drawTile();
+        this.image.onload = () => {
+            this.drawTile();
+        }
     }
 
     drawTile() {
