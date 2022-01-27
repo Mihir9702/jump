@@ -2,7 +2,7 @@ export default class Background {
     constructor(x, y, context, ch) {
         this.pos = { x, y }
         this.background = new Image();
-        this.background.src = "../images/backgrounds.jpg";
+        this.background.src = "./images/backgrounds.jpg";
         this.context = context;
         this.ch = ch;
     }
