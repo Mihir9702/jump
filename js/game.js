@@ -36,10 +36,12 @@ function main() {
     }
 
     tiles.forEach(tile => {
-        tile.drawTile();
-        keyStrokes(player, tile, background, instructions);
-        checkCollision(player, tile);
-        tilesXPosition.push(tile.pos.x);
+        tile.onload = () => {
+            tile.drawTile();
+            keyStrokes(player, tile, background, instructions);
+            checkCollision(player, tile);
+            tilesXPosition.push(tile.pos.x);
+        }
     });
     
     
