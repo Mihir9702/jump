@@ -13,6 +13,7 @@ body {
   background-color: var(--gray);
   overflow-y: hidden;
   font-family: "Mochiy Pop P one", sans-serif;
+  color: white;
 }
 
 #canvas {
@@ -43,7 +44,6 @@ body {
   border-right: 2px solid white;
   border-left: 2px solid white;
   border-radius: 50px;
-  color: white;
   letter-spacing: 2px;
   animation: header 800ms infinite ease-in-out;
 }
@@ -57,7 +57,6 @@ body {
 
 .mainMenu h2 {
   position: absolute;
-  color: white;
   bottom: 200px;
   letter-spacing: 2px;
   animation: letters 1.2s infinite ease-in-out;
