@@ -1,9 +1,3 @@
-const keys = {
-    up: { pressed: false },
-    right: { pressed: false },
-    left: { pressed: false }
-}
-
 export function checkCollision(player, tile) {
 
     // Player is inbounds of the Tiles on the X Plane  
@@ -29,9 +23,8 @@ export function checkCollision(player, tile) {
             player.pos.y = tile.pos.y + tile.height + 25;
             player.vel.y = 0; 
         }
+
 }
-
-
 
 export function keyStrokes(player, tile, background, instructions) {
 
@@ -56,8 +49,13 @@ export function keyStrokes(player, tile, background, instructions) {
 
 }
 
+const keys = {
+    up: { pressed: false },
+    right: { pressed: false },
+    left: { pressed: false }
+}
 
-// Logging player's input to check if they pressed or released the WASD keys
+// Logging player's input to check if they pressed or released the WAD keys
 addEventListener("keydown", key => {
     switch(key.code) {
         case "KeyW": keys.up.pressed = true; break;

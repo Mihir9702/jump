@@ -1,13 +1,8 @@
-export function win(context, cw, ch) {
-
-    context.clearRect(0,0, cw, ch);
-    context.fillStyle = "#1D1F20";
-    context.fillRect(0,0, cw, ch);
-    context.fillStyle = "white";
-    context.font = "50px monospace";
-    context.fillText("Congratulations!", cw / 4, ch / 2);
-
-    removeEventListener("keydown");
+export function win(canvas, container, click) {
+    
+    canvas.remove();
+    container.style.display = "grid";
+    click.style.display = "grid";
 
 }
 
@@ -20,7 +15,7 @@ export function lose(context, cw, ch, player, tiles, tilesXPosition, background,
     // Restart Mechanic resets all the positions
     addEventListener("keypress", key => {
         if (key.code === "KeyR") {
-            player.pos.x = 150;
+            player.pos.x = 50;
             player.pos.y = 550; 
             background.pos.x = -100;
             instructions.x = 20;
