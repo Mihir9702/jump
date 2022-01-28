@@ -4,6 +4,11 @@
   --gray: #1d1f20;
 }
 
+p {
+  position: absolute;
+  bottom: 0;
+}
+
 body {
   display: grid;
   place-items: center;
@@ -24,6 +29,7 @@ body {
   color: var(--gray);
 }
 
+/* Main Menu */
 .mainMenu {
   background-color: var(--gray);
   height: 100vmin;
@@ -67,6 +73,7 @@ body {
   animation: letters 1.2s infinite ease-in-out;
 }
 
+/* Congratulations */
 #container {
   display: none;
   place-items: center;
@@ -74,6 +81,7 @@ body {
   letter-spacing: 4px;
 }
 
+/* Click Button */
 #click {
   display: none;
   place-items: center;
@@ -113,25 +121,6 @@ body {
   }
 }
 
-p {
-  position: absolute;
-  bottom: 0;
-}
-
-@keyframes sparkles {
-  from {
-    padding: 10px;
-
-  }
-
-  50% {
-    padding: 5px;
-  }
-
-  to {
-    padding: 10px;
-  }
-}
 
 @keyframes letters {
   0% {
