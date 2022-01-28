@@ -9,6 +9,8 @@ import { win, lose } from "./winLose.js";
 const mainMenu = document.querySelector(".mainMenu");
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
+const container = document.getElementById("container");
+const click = document.getElementById("click");
 
 // Resizing the canvas
 const tileSize = 64;
@@ -25,6 +27,7 @@ const tiles = makeTile(0, 0, context, tileSize);
 const tilesXPosition = []; 
 
 background.onload = () => {}
+
 
 function main() {
     canvas.style.display = "grid";
@@ -43,7 +46,7 @@ function main() {
     
     
     // Win Condition - | Player's X Position is at the Final Tile's X position | Player is not below the screen | Player is idle on the Tile | 
-    if (player.pos.x >= 898 && player.pos.y < ch && player.vel.y === 0) { win(context, cw, ch) }
+    if (player.pos.x >= 780 && player.pos.y < ch && player.vel.y === 0) { win(canvas, container, click) }
 
     // Lose Condition - | Player's Y Position is below the Canvas |
     if (player.pos.y > ch) { lose(context, cw, ch, player, tiles, tilesXPosition, background, instructions) }
