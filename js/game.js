@@ -14,46 +14,65 @@ const click = document.getElementById("click");
 
 // Resizing the canvas
 const tileSize = 64;
-const cw = canvas.width = 1024;
-const ch = canvas.height = tileMatrix.length * tileSize;
+const cw = (canvas.width = 1024);
+const ch = (canvas.height = tileMatrix.length * tileSize);
 
 // Instances of the classes
-const background = new Background(-100,0, context, ch);
+const background = new Background(-100, 0, context, ch);
 const player = new Player(context, ch);
 const instructions = new Instructions(context);
 
 // Array of the tiles
-const tiles = makeTile(0, 0, context, tileSize); 
-const tilesXPosition = []; 
+const tiles = makeTile(0, 0, context, tileSize);
+const tilesXPosition = [];
 
-background.onload = () => {}
-
+background.onload = () => {};
 
 function main() {
-    canvas.style.display = "grid";
-    context.clearRect(0, 0, cw, ch);
-    
-    background.draw();
-    player.update();
-    instructions.draw();
+  canvas.style.display = "grid";
+  context.clearRect(0, 0, cw, ch);
 
-    tiles.forEach(tile => {
-        tile.drawTile();
-        keyStrokes(player, tile, background, instructions);
-        checkCollision(player, tile);
-        tilesXPosition.push(tile.pos.x);
-    });
-    
-    
-    // Win Condition - | Player's X Position is at the Final Tile's X position | Player is not below the screen | Player is idle on the Tile | 
-    if (player.pos.x >= 780 && player.pos.y < ch && player.vel.y === 0) { win(canvas, container, click) }
+  background.draw();
+  player.update();
+  instructions.draw();
 
-    // Lose Condition - | Player's Y Position is below the Canvas |
-    if (player.pos.y > ch) { lose(context, cw, ch, player, tiles, tilesXPosition, background, instructions) }
-    
-    requestAnimationFrame(main);
+  tiles.forEach((tile) => {
+    tile.drawTile();
+    keyStrokes(player, tile, background, instructions);
+    checkCollision(player, tile);
+    tilesXPosition.push(tile.pos.x);
+  });
+
+  // Win Condition - | Player's X Position is at the Final Tile's X position | Player is not below the screen | Player is idle on the Tile |
+  if (player.pos.x >= 780 && player.pos.y < ch && player.vel.y === 0) {
+    win(canvas, container, click);
+  }
+
+  // Lose Condition - | Player's Y Position is below the Canvas |
+  if (player.pos.y > ch) {
+    lose(
+      context,
+      cw,
+      ch,
+      player,
+      tiles,
+      tilesXPosition,
+      background,
+      instructions
+    );
+  }
+
+  requestAnimationFrame(main);
 }
 
-
 // Loads the Canvas on Enter key from the Main Menu
-addEventListener("keypress", key => { if (key.code === "Enter") { mainMenu.style.display = "none"; setTimeout(main, 500) } }, { once: true });
+addEventListener(
+  "keypress",
+  (key) => {
+    if (key.code === "Enter") {
+      mainMenu.style.display = "none";
+      setTimeout(main, 500);
+    }
+  },
+  { once: true }
+);
