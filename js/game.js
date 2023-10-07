@@ -44,9 +44,11 @@ function main() {
   });
 
   // Win Condition - | Player's X Position is at the Final Tile's X position | Player is not below the screen | Player is idle on the Tile |
-  if (player.pos.x >= 780 && player.pos.y < ch && player.vel.y === 0) {
+  if (player.pos.x >= 450 && player.pos.y < ch && player.vel.y === 0) {
     win(canvas, container, click);
   }
+
+  console.log(player.pos.x);
 
   // Lose Condition - | Player's Y Position is below the Canvas |
   if (player.pos.y > ch) {
