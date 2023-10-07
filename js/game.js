@@ -48,8 +48,6 @@ function main() {
     win(canvas, container, click);
   }
 
-  console.log(player.pos.x);
-
   // Lose Condition - | Player's Y Position is below the Canvas |
   if (player.pos.y > ch) {
     lose(
