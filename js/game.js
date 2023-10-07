@@ -66,7 +66,7 @@ function main() {
 }
 
 // Loads the Canvas on Enter key from the Main Menu
-addEventListener(
+document.addEventListener(
   "keypress",
   (key) => {
     if (key.code === "Enter") {
