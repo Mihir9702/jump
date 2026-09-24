@@ -41,7 +41,21 @@ export function touchesSpikes(level: Level, p: Player): boolean {
   return false
 }
 
-export const isDead = (level: Level, p: Player) => p.y < -FALL_LIMIT || touchesSpikes(level, p)
+// A fall is over once the cube is FALL_LIMIT below every surface it could still land on.
+// Surfaces more than FALL_REACH columns away are out of reach: even a drop the full height
+// of a map lasts under a second, which is about eight tiles of running.
+const FALL_REACH = 9
+
+export function fallLine(level: Level, x: number): number {
+  const col = Math.floor(x)
+  let lowest = Infinity
+  for (let c = Math.max(0, col - FALL_REACH); c <= Math.min(level.width - 1, col + FALL_REACH); c++) {
+    lowest = Math.min(lowest, level.lowestSurface[c]!)
+  }
+  return (lowest === Infinity ? 0 : lowest) - FALL_LIMIT
+}
+
+export const isDead = (level: Level, p: Player) => p.y < fallLine(level, p.x) || touchesSpikes(level, p)
 
 // Flag poles and checkpoint posts are tall, thin triggers standing on `base`
 const touchesPole = (p: Player, base: Point, height: number) =>
