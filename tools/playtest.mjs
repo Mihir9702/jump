@@ -389,6 +389,11 @@ try {
     await evaluate(`window.__pad.buttons[${i}].pressed = false`)
     await sleep(80)
   }
+  await evaluate('window.__pad.buttons[0].pressed = true')
+  const titleHop = await watch(p => !p.grounded, 1500)
+  await evaluate('window.__pad.buttons[0].pressed = false')
+  await sleep(400)
+  check('gamepad A jumps on the title without starting the game', Boolean(titleHop) && (await state()).state === 'title')
   await padButton(9)
   check('gamepad Start begins the game', await waitFor('window.__jump.state.state === "playing" && window.__jump.state.level === 0'))
   check('the title switches to gamepad wording', await evaluate('document.getElementById("app").dataset.device === "gamepad"'))

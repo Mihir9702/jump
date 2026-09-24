@@ -1,10 +1,11 @@
 // Keyboard, gamepad and touch buttons, merged into one set of held buttons plus a queue of
-// presses. The game takes presses once per simulation step, so a tap between two frames
-// still counts.
+// presses. The simulation takes jump and down presses on its next step, so a tap between
+// two frames still counts; the game handles or drops every other press each frame.
 
 export type Action =
   | 'jump'
   | 'down'
+  | 'start'
   | 'pause'
   | 'confirm'
   | 'back'
@@ -75,6 +76,12 @@ export class Input {
     this.queue.clear()
   }
 
+  // Drops every queued press except these, so presses nobody wanted this frame cannot
+  // pile up and fire later somewhere else
+  keepOnly(...actions: Action[]) {
+    for (const action of this.queue) if (!actions.includes(action)) this.queue.delete(action)
+  }
+
   readonly releaseAll = () => {
     this.keys.clear()
     Object.assign(this.touch, none())
@@ -117,8 +124,10 @@ export class Input {
       press('jump')
       if (code !== 'Space') press('navUp')
     } else if (code === 'Escape' || code === 'KeyP') press('pause')
-    else if (code === 'Enter' || code === 'NumpadEnter') press('confirm')
-    else if (code === 'KeyR') press('restart')
+    else if (code === 'Enter' || code === 'NumpadEnter') {
+      press('confirm')
+      press('start')
+    } else if (code === 'KeyR') press('restart')
     else if (code === 'KeyM') press('mute')
     else return
 
@@ -162,9 +171,10 @@ export class Input {
     const edge = (key: keyof PadState, ...actions: Action[]) => {
       if (now[key] && !before[key]) for (const action of actions) this.queue.add(action)
     }
+    // A jumps in play and picks the focused button in menus; only Start starts a run
     edge('a', 'jump', 'confirm')
     edge('b', 'back')
-    edge('start', 'pause')
+    edge('start', 'pause', 'start')
     edge('down', 'down', 'navDown')
     edge('up', 'navUp')
     edge('left', 'navLeft')
