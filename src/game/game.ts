@@ -91,10 +91,12 @@ export class Game {
     // Phones and tablets start with touch controls and touch wording
     if (coarse) this.input.setDevice('touch')
 
-    // Audio may only start after someone interacts with the page
+    // Audio may only start after someone interacts with the page. Touch screens count a
+    // tap as that interaction when the finger lifts, so listen for both ends.
     const unlock = () => this.sfx.unlock()
     window.addEventListener('keydown', unlock)
     window.addEventListener('pointerdown', unlock)
+    window.addEventListener('pointerup', unlock)
     window.addEventListener('pointerdown', event => {
       if (event.pointerType === 'touch') this.ui.enableTouch()
     })
