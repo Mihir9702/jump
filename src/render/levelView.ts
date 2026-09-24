@@ -26,7 +26,7 @@ import { type Random, createRandom, hashString } from '../util/random.ts'
 import { palette } from './palette.ts'
 
 // Depth of the blocks along z, in tiles. The player walks along z = 0.
-export const SOLID_DEPTH = 3
+const SOLID_DEPTH = 3
 const ONE_WAY_DEPTH = 2
 const LETTER_DEPTH = 1.4
 

@@ -159,9 +159,4 @@ export class Particles {
     items.length = write
     this.mesh.instanceMatrix.needsUpdate = true
   }
-
-  dispose() {
-    this.mesh.geometry.dispose()
-    ;(this.mesh.material as MeshStandardMaterial).dispose()
-  }
 }

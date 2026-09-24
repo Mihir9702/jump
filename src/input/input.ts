@@ -182,10 +182,4 @@ export class Input {
     const active = Object.values(now).some(Boolean) || Math.abs(x) > 0.4 || Math.abs(y) > 0.4
     if (active) this.setDevice('gamepad')
   }
-
-  dispose() {
-    window.removeEventListener('keydown', this.onKeyDown)
-    window.removeEventListener('keyup', this.onKeyUp)
-    window.removeEventListener('blur', this.releaseAll)
-  }
 }

@@ -112,9 +112,4 @@ export class PlayerView {
     }
     this.eyes.scale.y = time < this.blinkUntil ? 0.2 : 1
   }
-
-  dispose() {
-    for (const geometry of this.geometries) geometry.dispose()
-    for (const material of this.materials) material.dispose()
-  }
 }
