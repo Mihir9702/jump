@@ -1,4 +1,4 @@
-﻿// Finds a way through a level using the real game physics, so tests can prove that every
+// Finds a way through a level using the real game physics, so tests can prove that every
 // level can be finished and every coin can be reached. It searches over short held-button
 // moves (weighted A*), treating positions and speeds that round to the same values as the
 // same state. Routes are exact: replaying `steps` from the level start reproduces them.
