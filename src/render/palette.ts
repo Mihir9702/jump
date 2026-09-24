@@ -41,5 +41,3 @@ export const palette = {
   skyLight: '#d3ebe0',
   groundLight: '#8c7452',
 } as const
-
-export type PaletteColor = keyof typeof palette
