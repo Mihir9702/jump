@@ -5,8 +5,8 @@ TypeScript and Vite.
 
 ![The title screen: the word JUMP built from grass-topped blocks above a valley at sunset](docs/screenshots/title.png)
 
-Play it at <https://mihir9702.github.io/jump/> once v2 is deployed. The 2022 original stays
-playable at <https://mihir9702.github.io/jump/legacy/>.
+Play it at <https://mihir9702.github.io/jump/> once v2 is deployed. The 2022 original's
+code is kept in `legacy/` for reference but is not deployed.
 
 ## Controls
 
@@ -61,7 +61,7 @@ teleport, and a way to start a level or replay a recorded route.
 ## Deploy
 
 `npm run build` produces a static site in `dist/` for GitHub Pages under `/jump/` (set by
-`base` in `vite.config.ts`). The build also copies `legacy/` into `dist/legacy/`.
+`base` in `vite.config.ts`). `legacy/` is not part of the build.
 
 The repository includes `.github/workflows/deploy.yml`, which builds, tests and publishes
 `dist/`. It only runs when started by hand. To use it:
