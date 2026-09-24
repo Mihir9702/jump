@@ -52,6 +52,8 @@ export interface Level {
   // Coin centers
   coins: Point[]
   hints: { x: number; id: HintId }[]
+  // Height of the lowest surface anything can stand on in each column, or Infinity
+  lowestSurface: Float32Array
 }
 
 const symbols: Record<string, TileKind> = {
@@ -108,7 +110,7 @@ export function parseLevel(data: LevelData): Level {
     if (!hintIds.includes(hint.id)) throw new Error(`${data.name}: unknown hint "${hint.id}"`)
   }
 
-  return {
+  const level: Level = {
     name: data.name,
     kind,
     width,
@@ -119,7 +121,20 @@ export function parseLevel(data: LevelData): Level {
     checkpoints: checkpoints.sort((a, b) => a.x - b.x),
     coins,
     hints: data.hints ?? [],
+    lowestSurface: new Float32Array(width).fill(Infinity),
   }
+  for (let col = 0; col < width; col++) {
+    for (let row = 0; row < height; row++) {
+      const top = tileAt(level, col, row + 1)
+      const standable =
+        (tileAt(level, col, row) === Tile.Solid && top !== Tile.Solid) || platformAt(level, col, row)
+      if (standable) {
+        level.lowestSurface[col] = row + 1
+        break
+      }
+    }
+  }
+  return level
 }
 
 export function tileAt(level: Level, col: number, row: number): TileKind {
