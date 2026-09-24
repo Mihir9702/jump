@@ -69,6 +69,9 @@ from a branch**, `gh-pages`, `/ (root)`). It only needs ordinary push access to 
 repository, with no GitHub Actions workflow. It refuses to run with uncommitted changes, so
 the live site always matches a commit.
 
+Shared links show `public/og.png`, a 1200×630 capture of the title scene without the menu.
+The preview tags in `index.html` use absolute URLs, so update them if the address changes.
+
 ## What's new in v2
 
 - Rebuilt in Three.js, TypeScript and Vite. The world is now 2.5D: voxel blocks with real
