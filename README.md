@@ -63,16 +63,11 @@ teleport, and a way to start a level or replay a recorded route.
 `npm run build` produces a static site in `dist/` for GitHub Pages under `/jump/` (set by
 `base` in `vite.config.ts`). `legacy/` is not part of the build.
 
-The repository includes `.github/workflows/deploy.yml`, which builds, tests and publishes
-`dist/`. It only runs when started by hand. To use it:
-
-1. In the repository settings, set Pages > Build and deployment > Source to **GitHub
-   Actions**. Do this before `index.html` from this version reaches `main`: Pages currently
-   serves the branch as-is, and the unbuilt `index.html` does not run on its own.
-2. Open the Actions tab, choose **Deploy to GitHub Pages** and click **Run workflow**.
-
-To deploy on every push to `main`, add a `push` trigger to the workflow, as described at
-the top of the file.
+`npm run deploy` runs the tests, builds, and force-pushes `dist/` to the `gh-pages` branch.
+GitHub Pages serves that branch (Settings > Pages > Build and deployment > Source: **Deploy
+from a branch**, `gh-pages`, `/ (root)`). It only needs ordinary push access to this
+repository, with no GitHub Actions workflow. It refuses to run with uncommitted changes, so
+the live site always matches a commit.
 
 ## What's new in v2
 
