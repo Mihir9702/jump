@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#143f43" />
+    <meta
+      name="description"
+      content="Jump is a small 2.5D platformer: guide a cyan cube across three levels of a sunset valley."
+    />
+    <link rel="canonical" href="https://mihir9702.github.io/jump/" />
+    <!-- Link previews (LinkedIn, Slack, X). They need absolute URLs; public/og.png is served
+         next to this page -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mihir9702.github.io/jump/" />
+    <meta property="og:title" content="Jump" />
+    <meta
+      property="og:description"
+      content="Jump is a small 2.5D platformer: guide a cyan cube across three levels of a sunset valley."
+    />
+    <meta property="og:image" content="https://mihir9702.github.io/jump/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="The word JUMP built from grass-topped blocks above a valley at sunset, with the cyan cube below"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/jump/favicon.svg" type="image/svg+xml" />
+    <title>Jump</title>
+    <script type="module" crossorigin src="/jump/assets/index-DaVkGaEm.js"></script>
+    <link rel="stylesheet" crossorigin href="/jump/assets/index-Be3ZIbmS.css">
+  </head>
+  <body>
+    <main class="app" id="app" data-device="keyboard">
+      <canvas class="scene" id="scene" role="img" aria-label="The game world"></canvas>
+
+      <header class="hud" id="hud" hidden>
+        <p class="plate hud-level">
+          <span class="hud-level-number" id="hud-level-number">1</span>
+          <span id="hud-level-name">Meadow</span>
+        </p>
+        <div class="hud-stats">
+          <p class="plate hud-coins">
+            <span class="coin-icon" aria-hidden="true"></span>
+            <span id="hud-coins">0/0</span><span class="sr-only"> coins</span>
+          </p>
+          <p class="plate hud-time"><span class="sr-only">Time </span><span id="hud-time">0:00.0</span></p>
+          <button class="plate icon-button" id="pause-button" type="button" aria-label="Pause">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <p class="plate hint" id="hint" role="status" hidden></p>
+      <div class="banner" id="banner" aria-hidden="true"></div>
+
+      <section class="title" id="title-screen" aria-labelledby="title-heading">
+        <h1 class="sr-only" id="title-heading">Jump</h1>
+        <div class="title-panel">
+          <div class="title-start">
+            <button class="button button-primary" id="play-button" type="button">
+              Play <kbd data-device-only="keyboard">Enter</kbd><kbd data-device-only="gamepad">Start</kbd>
+            </button>
+            <p class="title-lead">
+              <span data-device-only="keyboard">Warm up on the letters, then press Play.</span>
+              <span data-device-only="touch">Warm up on the letters, then tap Play.</span>
+              <span data-device-only="gamepad">Warm up on the letters, then press Start.</span>
+            </p>
+          </div>
+          <dl class="controls" data-device-only="keyboard">
+            <div><dt>Move</dt><dd><kbd>A</kbd> <kbd>D</kbd> or <kbd>←</kbd> <kbd>→</kbd></dd></div>
+            <div><dt>Jump</dt><dd><kbd>W</kbd> <kbd>Space</kbd> or <kbd>↑</kbd>, hold for higher</dd></div>
+            <div><dt>Drop through</dt><dd><kbd>S</kbd> or <kbd>↓</kbd></dd></div>
+            <div><dt>Pause</dt><dd><kbd>Esc</kbd> or <kbd>P</kbd></dd></div>
+          </dl>
+          <p class="controls" data-device-only="touch">
+            Hold jump for a higher jump. The down button drops you through thin platforms.
+          </p>
+          <p class="controls" data-device-only="gamepad">
+            Stick or d-pad to move, A to jump (hold for higher), down to drop through, Start to pause.
+          </p>
+        </div>
+        <footer class="title-footer">
+          <button class="text-button" type="button" data-sound-toggle aria-pressed="true">Sound on</button>
+          <span>v2.0</span>
+        </footer>
+      </section>
+
+      <section class="panel pause" id="pause-screen" role="dialog" aria-modal="true" aria-labelledby="pause-heading" hidden>
+        <h2 class="block-heading" id="pause-heading">Paused</h2>
+        <div class="menu">
+          <button class="button button-primary" type="button" data-action="resume">Resume</button>
+          <button class="button" type="button" data-action="restart">Restart level</button>
+          <button class="button" type="button" data-action="quit">Quit to title</button>
+        </div>
+        <button class="text-button" type="button" data-sound-toggle aria-pressed="true">Sound on</button>
+      </section>
+
+      <section class="panel clear" id="clear-screen" role="dialog" aria-labelledby="clear-heading" hidden>
+        <h2 class="block-heading" id="clear-heading">Meadow</h2>
+        <p class="summary" id="clear-summary"></p>
+        <div class="menu">
+          <button class="button button-primary" type="button" data-action="next">
+            Next level <kbd data-device-only="keyboard">Enter</kbd>
+          </button>
+        </div>
+      </section>
+
+      <section class="panel win" id="win-screen" role="dialog" aria-labelledby="win-heading" hidden>
+        <h2 class="block-heading" id="win-heading">You made it</h2>
+        <p class="summary" id="win-summary"></p>
+        <table class="results">
+          <caption class="sr-only">Time and coins for each level</caption>
+          <thead class="sr-only">
+            <tr><th scope="col">Level</th><th scope="col">Name</th><th scope="col">Time</th><th scope="col">Coins</th></tr>
+          </thead>
+          <tbody id="win-rows"></tbody>
+        </table>
+        <p class="best" id="win-best"></p>
+        <div class="menu">
+          <button class="button button-primary" type="button" data-action="again">Play again</button>
+          <button class="button" type="button" data-action="title">Back to title</button>
+        </div>
+      </section>
+
+      <div class="touch" id="touch" hidden>
+        <div class="touch-group">
+          <button class="touch-button" type="button" data-touch="left" aria-label="Move left">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-8 7 8 7z" /></svg>
+          </button>
+          <button class="touch-button" type="button" data-touch="right" aria-label="Move right">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l8 7-8 7z" /></svg>
+          </button>
+        </div>
+        <div class="touch-group">
+          <button class="touch-button" type="button" data-touch="down" aria-label="Drop through">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l7 8 7-8z" /></svg>
+          </button>
+          <button class="touch-button touch-jump" type="button" data-touch="jump" aria-label="Jump">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15l7-8 7 8z" /></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="fade" id="fade" aria-hidden="true"></div>
+      <p class="fallback" id="fallback" hidden>
+        Jump needs WebGL, which this browser has turned off or does not support. Try another
+        browser, or turn on hardware acceleration in this one.
+      </p>
+    </main>
+    <noscript>Jump needs JavaScript to run.</noscript>
+  </body>
+</html>
