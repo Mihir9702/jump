@@ -227,4 +227,37 @@ describe('world', () => {
     for (let i = 0; i < 240 && !died; i++) died = d.step().died
     assert.ok(died)
   })
+
+  // A high ledge over a bottomless gap, and lower ground further on
+  const heights = sandbox([
+    '                                        ',
+    '  P                                     ',
+    '#####                                   ',
+    ...Array.from({ length: 14 }, () => '                                        '),
+    '                        ################',
+    '                                        ',
+  ])
+
+  it('a fall into a gap ends as soon as nothing is left to land on', () => {
+    const d = new Driver(heights)
+    let steps = 0
+    let died = false
+    while (d.world.player.grounded) d.step({ right: true })
+    while (!died && steps < 240) {
+      died = d.step({ right: true }).died
+      steps++
+    }
+    assert.ok(died)
+    assert.ok(steps * STEP < 0.4, `fell for ${(steps * STEP).toFixed(2)} s`)
+  })
+
+  it('a long drop onto lower ground is not a fall', () => {
+    const d = new Driver(heights)
+    d.world.player.x = 23.5
+    d.world.player.y = 16
+    let died = false
+    for (let i = 0; i < 240; i++) died = d.step({ right: true }).died || died
+    assert.equal(died, false)
+    assert.ok(d.world.player.grounded && d.world.player.y === 2)
+  })
 })

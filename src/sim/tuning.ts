@@ -36,5 +36,6 @@ export const PLAYER_HALF = PLAYER_SIZE / 2
 // When a jump clips the corner of a ceiling by less than this, slide around it instead
 export const CORNER_NUDGE = 0.3
 
-// How far below the bottom of the map the player can fall before the level restarts
+// How far below the lowest surface it could still reach the player can fall before the
+// level restarts
 export const FALL_LIMIT = 2.5
