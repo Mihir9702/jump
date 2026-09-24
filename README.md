@@ -5,8 +5,8 @@ TypeScript and Vite.
 
 ![The title screen: the word JUMP built from grass-topped blocks above a valley at sunset](docs/screenshots/title.png)
 
-Play it at <https://mihir9702.github.io/jump/> once v2 is deployed. The 2022 original's
-code is kept in `legacy/` for reference but is not deployed.
+Play it at <https://mihir9702.github.io/jump/>. The 2022 original's code is kept in
+`legacy/` for reference but is not deployed.
 
 ## Controls
 
