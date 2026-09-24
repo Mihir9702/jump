@@ -287,14 +287,20 @@ try {
   const dropped = await watch(p => p.grounded && Math.abs(p.y - 3) < 0.01, 2500)
   check('pressing down drops through the platform', Boolean(dropped))
 
-  // A short tap makes a lower jump than a held press
+  // A short tap makes a lower jump than a held press. The game reads buttons once per
+  // frame and software-rendered frames here can take a quarter of a second, so the tap
+  // sends its release straight after the press: both land before the next frame.
   const hop = async ms => {
     await watch(p => p.grounded, 2000)
     const base = (await state()).y
     let peak = base
-    await key('keyDown', 'Space')
+    if (ms === 0) {
+      await Promise.all([key('keyDown', 'Space'), key('keyUp', 'Space')])
+    } else {
+      await key('keyDown', 'Space')
+    }
     const t0 = Date.now()
-    let released = false
+    let released = ms === 0
     while (Date.now() - t0 < 900) {
       if (!released && Date.now() - t0 >= ms) {
         await key('keyUp', 'Space')
@@ -306,7 +312,7 @@ try {
     if (!released) await key('keyUp', 'Space')
     return peak - base
   }
-  const tapHeight = await hop(40)
+  const tapHeight = await hop(0)
   const holdHeight = await hop(600)
   check('variable jump height: a tap hops lower than a hold', tapHeight < holdHeight - 1, `tap ${tapHeight.toFixed(2)}, hold ${holdHeight.toFixed(2)} tiles`)
 
