@@ -294,6 +294,9 @@ export class Game {
     this.world = new World(level)
     this.levelView = new LevelView(level)
     this.stage.scene.add(this.levelView.group)
+    // Compile every material now, behind the fade, rather than the first time each one
+    // scrolls into view mid-jump
+    this.stage.renderer.compile(this.stage.scene, this.stage.camera)
     this.particles.clear()
     this.previousX = this.world.player.x
     this.previousY = this.world.player.y
