@@ -143,7 +143,8 @@ export class Game {
     this.input.poll()
     this.handleActions()
 
-    if (this.state === 'paused') {
+    // The world stands still while paused and while a scene change fades in
+    if (this.state === 'paused' || this.state === 'changing') {
       if (this.redraw) this.draw(1, 0)
       this.redraw = false
       return
@@ -161,13 +162,14 @@ export class Game {
     this.stage.adapt(dt)
   }
 
-  // Menu keys, pause and other one-off presses
+  // Menu keys, pause and other one-off presses. Whatever this frame does not use is
+  // dropped, except jump and down, which the next simulation step takes.
   private handleActions() {
     const input = this.input
     if (input.take('mute')) this.toggleSound()
     switch (this.state) {
       case 'title':
-        if (input.take('confirm') || input.take('pause')) this.startRun()
+        if (input.take('start')) this.startRun()
         break
       case 'playing':
         if (input.take('pause')) this.pause()
@@ -182,6 +184,7 @@ export class Game {
         if (this.cardShown) this.navigateMenu()
         break
     }
+    input.keepOnly('jump', 'down')
   }
 
   private navigateMenu() {
