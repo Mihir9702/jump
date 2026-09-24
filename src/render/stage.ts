@@ -181,8 +181,4 @@ export class Stage {
       this.renderer.setPixelRatio(this.pixelRatio)
     }
   }
-
-  dispose() {
-    this.renderer.dispose()
-  }
 }
