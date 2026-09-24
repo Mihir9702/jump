@@ -96,6 +96,13 @@ export class Ui {
     for (const button of this.app.querySelectorAll<HTMLButtonElement>('[data-sound-toggle]')) {
       button.addEventListener('click', () => actions.toggleSound())
     }
+    // A button clicked with a mouse or finger outside a dialog should not keep focus, or
+    // the next press of Space would click it again instead of jumping. Keyboard users keep
+    // their focus (a keyboard click has no pointer detail).
+    this.app.addEventListener('click', event => {
+      const button = (event.target as Element | null)?.closest('button')
+      if (button && event.detail > 0 && !button.closest('[role="dialog"]')) button.blur()
+    })
     this.bindTouch(input)
   }
 
