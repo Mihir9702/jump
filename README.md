@@ -72,6 +72,26 @@ the live site always matches a commit.
 Shared links show `public/og.png`, a 1200×630 capture of the title scene without the menu.
 The preview tags in `index.html` use absolute URLs, so update them if the address changes.
 
+## What's new in v2.1
+
+- The original three stages are now **World I — Sunset Valley**, with World Select and
+  Level Select for full runs or individual time trials.
+- Each level remembers its fastest time, most coins, fewest falls and Bronze/Silver/Gold
+  medal. Medal thresholds are provisional until they are calibrated with human runs.
+- A new personal best stores the exact 120 Hz control stream and races it back as a
+  translucent ghost using a second, isolated instance of the real game `World`.
+- Ghosts cannot affect the live player's coins, checkpoints, deaths or goal state, and can
+  be toggled from the title or pause screen.
+- Saved ghosts carry a level revision, so an edited course never replays an incompatible
+  record against different geometry.
+- Checkpoints briefly show the player's delta against the saved PB split.
+- Progress is versioned in browser storage and migrates the old full-run PB into the Sunset
+  Valley world record.
+- The v2.0 simulation, physics, input and existing render systems are unchanged. v2.1 is
+  layered through new `worlds`, `replay` and `progress` modules plus thin game/UI adapters.
+- The browser playtest keeps all original v2.0 checks and adds coverage for selectors,
+  persisted PB ghosts, ghost isolation/toggling and slower-run PB protection.
+
 ## What's new in v2
 
 - Rebuilt in Three.js, TypeScript and Vite. The world is now 2.5D: voxel blocks with real
@@ -135,9 +155,3 @@ level cannot be finished, or a coin cannot be reached, with the real physics.
 Everything in v2 is original to this project. The blocks, scenery and effects are built
 from geometry in code, the sounds are synthesized, and the block lettering is drawn in
 code. There are no font files: the interface uses your system font. The 2022 version is preserved separately on the `archive/v1` branch.
-
-## Copyright and reuse
-
-Jump is source-visible, but the project is **not released under an open-source license**. The current game's code, levels, original visuals, screenshots, documentation and identity are reserved. See [COPYRIGHT.md](COPYRIGHT.md).
-
-Dependencies such as Three.js keep their own upstream licenses. The preserved `archive/v1` branch contains two legacy image assets with undocumented provenance; they are retained only as part of the historical branch and are not licensed for reuse by this project.

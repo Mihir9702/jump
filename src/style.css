@@ -634,3 +634,191 @@ dl.controls {
     transition: none;
   }
 }
+
+/* v2.1: worlds, level records and ghost racing */
+.app[data-screen='worlds'] .scene,
+.app[data-screen='levels'] .scene {
+  filter: saturate(0.68) brightness(0.72);
+}
+
+.hud-split {
+  min-width: 5.4em;
+  justify-content: center;
+}
+
+.hud-split.ahead {
+  color: var(--sage);
+}
+
+.hud-split.behind {
+  color: var(--marigold);
+}
+
+.title-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.browser-panel {
+  top: 50%;
+  left: 50%;
+  width: min(48rem, calc(100vw - 32px));
+  max-height: calc(100% - 48px);
+  overflow: auto;
+  transform: translate(-50%, -50%);
+  overscroll-behavior: contain;
+}
+
+.browser-panel .block-heading {
+  height: 2.4rem;
+}
+
+.browser-record {
+  margin: 12px 0 0;
+  color: var(--sage);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.select-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.world-grid,
+.level-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.select-card {
+  min-width: 0;
+  min-height: 142px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 15px;
+  text-align: left;
+  font: inherit;
+  color: var(--haze);
+  background: var(--panel-raised);
+  border: 2px solid transparent;
+  border-radius: 5px;
+  box-shadow: 0 5px 0 var(--panel-edge);
+}
+
+button.select-card {
+  cursor: pointer;
+}
+
+button.select-card:hover {
+  border-color: var(--sage);
+}
+
+button.select-card:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--panel-edge);
+}
+
+.select-card:focus-visible {
+  outline: 3px solid var(--haze);
+  outline-offset: 4px;
+}
+
+.select-card.locked {
+  opacity: 0.46;
+}
+
+.card-kicker,
+.level-number {
+  color: var(--cyan);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.card-title {
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.card-copy {
+  color: var(--sage);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.card-record {
+  margin-top: auto;
+  font-size: 13px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-meta {
+  color: var(--sage);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.medal {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 7px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+
+.medal-gold {
+  background: var(--marigold);
+}
+
+.medal-silver {
+  background: var(--haze-edge);
+}
+
+.medal-bronze {
+  background: #c78655;
+}
+
+.medal-none {
+  color: var(--sage);
+  background: var(--panel);
+}
+
+.pause [data-ghost-toggle] {
+  margin-right: 16px;
+}
+
+#clear-best {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 760px) {
+  .world-grid,
+  .level-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .browser-panel {
+    max-height: calc(100% - 28px);
+  }
+
+  .select-card {
+    min-height: 112px;
+  }
+
+  .hud-split {
+    position: absolute;
+    top: 42px;
+    right: 0;
+  }
+}

@@ -368,6 +368,15 @@ try {
   await shot('win')
   await press('Enter')
   check('Play again starts level 1', await waitFor('window.__jump.state.state === "playing" && window.__jump.state.level === 0'))
+  await sleep(350)
+  check('a saved PB ghost appears on the second run', await waitFor('window.__jump.state.ghost !== null', 2000))
+  const ghostMoved = await watch(p => p.ghost && p.ghost.x > p.x + 1, 3000)
+  check(
+    'the PB ghost runs independently of the live cube',
+    Boolean(ghostMoved),
+    ghostMoved ? `player ${ghostMoved.x.toFixed(2)}, ghost ${ghostMoved.ghost.x.toFixed(2)}` : '',
+  )
+  await shot('ghost-race')
 
   // -------------------------------------------------------------- falling restarts instantly
   await evaluate('window.__jump.teleport(20, 3)')
@@ -379,6 +388,57 @@ try {
   await sleep(600)
   const hiDpi = await evaluate('(() => { const c = document.querySelector("canvas"); return [c.width, c.height] })()')
   check('resizing to a high-DPI window renders at full resolution', hiDpi[0] === 2048 && hiDpi[1] === 1400, hiDpi.join(' x '))
+
+  // -------------------------------------------------------------- v2.1 worlds, PBs and ghost settings
+  await open()
+  await evaluate('document.querySelector(\'[data-action="worlds"]\').click()')
+  check('World Select opens', await waitFor('window.__jump.state.screen === "worlds"'))
+  await sleep(400)
+  const worldCards = await evaluate('document.querySelectorAll("#world-list .world-card").length')
+  const playableWorlds = await evaluate('document.querySelectorAll("#world-list [data-world-id]").length')
+  check('World Select shows Sunset Valley plus two future worlds', worldCards === 3 && playableWorlds === 1)
+  await shot('world-select')
+
+  await evaluate('document.querySelector(\'[data-world-id="sunset-valley"]\').click()')
+  check('Sunset Valley opens its level select', await waitFor('window.__jump.state.screen === "levels"'))
+  await sleep(400)
+  const levelCards = await evaluate('document.querySelectorAll("#level-list [data-level-id]").length')
+  const ghostReadyCards = await evaluate('[...document.querySelectorAll("#level-list .card-record")].filter(e => e.textContent.includes("Ghost ready")).length')
+  check('all three Sunset Valley levels are selectable with saved ghosts', levelCards === 3 && ghostReadyCards === 3)
+  await shot('level-select')
+
+  const pbBefore = await evaluate('JSON.parse(localStorage.getItem("jump:progress:v1")).levels["sunset-valley/meadow"].ghost.time')
+  await evaluate('document.querySelector(\'[data-level-id="sunset-valley/meadow"]\').click()')
+  check(
+    'selecting Meadow starts a solo time trial',
+    await waitFor('window.__jump.state.state === "playing" && window.__jump.state.runMode === "level" && window.__jump.state.level === 0'),
+  )
+  check('the PB ghost loads in the solo time trial', await waitFor('window.__jump.state.ghost !== null', 2000))
+
+  await press('Escape')
+  await sleep(400)
+  await evaluate('document.querySelector("#pause-screen [data-ghost-toggle]").click()')
+  check(
+    'the ghost toggle hides the ghost',
+    await waitFor('window.__jump.state.ghostEnabled === false && window.__jump.state.ghost === null'),
+  )
+  await sleep(100)
+  await evaluate('document.querySelector("#pause-screen [data-ghost-toggle]").click()')
+  check(
+    'turning the ghost back on restores it at the current replay time',
+    await waitFor('window.__jump.state.ghostEnabled === true && window.__jump.state.ghost !== null'),
+  )
+  await press('Escape')
+
+  // Deliberately wait before replaying the same solved route. This run must be slower than
+  // the PB and therefore must not replace the saved ghost.
+  await sleep(2200)
+  check('a deliberately slower solo run still finishes', await finishLevel(0))
+  const pbAfter = await evaluate('JSON.parse(localStorage.getItem("jump:progress:v1")).levels["sunset-valley/meadow"].ghost.time')
+  check('a slower run does not overwrite the PB ghost', Math.abs(pbAfter - pbBefore) < 1e-9)
+  const soloActions = await evaluate('document.getElementById("clear-next").textContent.includes("Race again") && !document.getElementById("clear-levels").hidden')
+  check('solo results offer Race again and Level select', soloActions)
+  await shot('pb-result')
 
   // -------------------------------------------------------------- gamepad
   // Headless Chrome has no gamepads, so stand in a fake one for the game's polling

@@ -25,6 +25,12 @@ export const prefs = {
   set sound(on: boolean) {
     write('sound', on ? 'on' : 'off')
   },
+  get ghost(): boolean {
+    return read('ghost') !== 'off'
+  },
+  set ghost(on: boolean) {
+    write('ghost', on ? 'on' : 'off')
+  },
   // Fastest full run, in seconds, or null
   get best(): number | null {
     const value = Number(read('best'))
