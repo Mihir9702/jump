@@ -5,8 +5,8 @@ TypeScript and Vite.
 
 ![The title screen: the word JUMP built from grass-topped blocks above a valley at sunset](docs/screenshots/title.png)
 
-Play it at <https://mihir9702.github.io/jump/>. The 2022 original's code is kept in
-`legacy/` for reference but is not deployed.
+Play it at <https://mihir9702.github.io/jump/>. The 2022 original is preserved on the
+`archive/v1` branch and is not deployed.
 
 ## Controls
 
@@ -61,7 +61,7 @@ teleport, and a way to start a level or replay a recorded route.
 ## Deploy
 
 `npm run build` produces a static site in `dist/` for GitHub Pages under `/jump/` (set by
-`base` in `vite.config.ts`). `legacy/` is not part of the build.
+`base` in `vite.config.ts`).
 
 `npm run deploy` runs the tests, builds, and force-pushes `dist/` to the `gh-pages` branch.
 GitHub Pages serves that branch (Settings > Pages > Build and deployment > Source: **Deploy
@@ -89,7 +89,7 @@ The preview tags in `index.html` use absolute URLs, so update them if the addres
   particles), and adapts to window size and screen density.
 - Sound effects generated in the browser. There are no audio files, and nothing plays until
   you press a key or tap.
-- The 2022 version is kept in `legacy/`, unchanged.
+- The 2022 version is preserved on the `archive/v1` branch.
 
 ## How it is built
 
@@ -104,7 +104,6 @@ src/
   game/       The loop, the screens flow and level progression
 test/         Physics and level tests (node --test)
 tools/        solver.ts finds routes through levels; playtest.mjs drives headless Chrome
-legacy/       The 2022 version
 ```
 
 The simulation in `src/sim` has no Three.js or browser dependencies, which is why the tests
@@ -135,5 +134,4 @@ level cannot be finished, or a coin cannot be reached, with the real physics.
 
 Everything in v2 is original to this project. The blocks, scenery and effects are built
 from geometry in code, the sounds are synthesized, and the block lettering is drawn in
-code. There are no font files: the interface uses your system font. The 2022 version in
-`legacy/` keeps its own assets and is not part of the v2 game.
+code. There are no font files: the interface uses your system font. The 2022 version is preserved separately on the `archive/v1` branch.
