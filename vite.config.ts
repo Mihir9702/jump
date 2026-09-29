@@ -8,6 +8,6 @@ export default defineConfig({
     // Three.js alone is roughly 600 kB minified; one chunk loads faster than several here
     chunkSizeWarningLimit: 900,
   },
-  // Only scan the v2 entry, not the 2022 page kept in legacy/ (which is not deployed)
+  // Only scan the v2 entry
   optimizeDeps: { entries: ['index.html'] },
 })
