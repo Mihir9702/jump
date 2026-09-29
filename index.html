@@ -39,6 +39,7 @@
           <span id="hud-level-name">Meadow</span>
         </p>
         <div class="hud-stats">
+          <p class="plate hud-split" id="hud-split" hidden></p>
           <p class="plate hud-coins">
             <span class="coin-icon" aria-hidden="true"></span>
             <span id="hud-coins">0/0</span><span class="sr-only"> coins</span>
@@ -66,6 +67,10 @@
               <span data-device-only="gamepad">Warm up on the letters, then press Start.</span>
             </p>
           </div>
+          <div class="title-tools">
+            <button class="text-button" type="button" data-action="worlds">World select</button>
+            <button class="text-button" type="button" data-action="timeTrial">Time trial</button>
+          </div>
           <dl class="controls" data-device-only="keyboard">
             <div><dt>Move</dt><dd><kbd>A</kbd> <kbd>D</kbd> or <kbd>←</kbd> <kbd>→</kbd></dd></div>
             <div><dt>Jump</dt><dd><kbd>W</kbd> <kbd>Space</kbd> or <kbd>↑</kbd>, hold for higher</dd></div>
@@ -80,9 +85,30 @@
           </p>
         </div>
         <footer class="title-footer">
+          <button class="text-button" type="button" data-ghost-toggle aria-pressed="true">Ghost on</button>
           <button class="text-button" type="button" data-sound-toggle aria-pressed="true">Sound on</button>
-          <span>v2.0</span>
+          <span>v2.1</span>
         </footer>
+      </section>
+
+      <section class="panel browser-panel" id="world-screen" role="dialog" aria-modal="true" aria-labelledby="world-heading" hidden>
+        <h2 class="block-heading" id="world-heading">Worlds</h2>
+        <p class="summary">Pick a world. Sunset Valley is the first complete circuit.</p>
+        <div class="select-grid world-grid" id="world-list"></div>
+        <div class="menu">
+          <button class="button" type="button" data-action="title">Back to title</button>
+        </div>
+      </section>
+
+      <section class="panel browser-panel" id="level-screen" role="dialog" aria-modal="true" aria-labelledby="level-heading" hidden>
+        <h2 class="block-heading" id="level-heading">Sunset Valley</h2>
+        <p class="summary" id="level-description"></p>
+        <p class="browser-record" id="world-record"></p>
+        <div class="select-grid level-grid" id="level-list"></div>
+        <div class="menu">
+          <button class="button button-primary" id="run-world-button" type="button" data-action="playWorld">Run world</button>
+          <button class="button" type="button" data-action="worlds">Back to worlds</button>
+        </div>
       </section>
 
       <section class="panel pause" id="pause-screen" role="dialog" aria-modal="true" aria-labelledby="pause-heading" hidden>
@@ -92,16 +118,19 @@
           <button class="button" type="button" data-action="restart">Restart level</button>
           <button class="button" type="button" data-action="quit">Quit to title</button>
         </div>
+        <button class="text-button" type="button" data-ghost-toggle aria-pressed="true">Ghost on</button>
         <button class="text-button" type="button" data-sound-toggle aria-pressed="true">Sound on</button>
       </section>
 
       <section class="panel clear" id="clear-screen" role="dialog" aria-labelledby="clear-heading" hidden>
         <h2 class="block-heading" id="clear-heading">Meadow</h2>
         <p class="summary" id="clear-summary"></p>
+        <p class="best" id="clear-best"></p>
         <div class="menu">
-          <button class="button button-primary" type="button" data-action="next">
+          <button class="button button-primary" id="clear-next" type="button" data-action="next">
             Next level <kbd data-device-only="keyboard">Enter</kbd>
           </button>
+          <button class="button" id="clear-levels" type="button" data-action="levels" hidden>Level select</button>
         </div>
       </section>
 
@@ -118,6 +147,7 @@
         <p class="best" id="win-best"></p>
         <div class="menu">
           <button class="button button-primary" type="button" data-action="again">Play again</button>
+          <button class="button" type="button" data-action="levels">Level select</button>
           <button class="button" type="button" data-action="title">Back to title</button>
         </div>
       </section>

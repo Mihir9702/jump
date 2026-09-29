@@ -1,6 +1,9 @@
 import { Sfx } from '../audio/sfx.ts'
 import { Input } from '../input/input.ts'
-import { levels, titleLevel } from '../levels/index.ts'
+import { titleLevel } from '../levels/index.ts'
+import { GhostRace } from '../replay/ghostRace.ts'
+import { findWorld, sunsetValley } from '../worlds/worlds.ts'
+import { RunSession } from './runSession.ts'
 import { Backdrop } from '../render/backdrop.ts'
 import { CameraRig } from '../render/cameraRig.ts'
 import { LevelView } from '../render/levelView.ts'
@@ -14,7 +17,7 @@ import { World } from '../sim/world.ts'
 import { type LevelResult, Ui } from '../ui/ui.ts'
 import { prefs } from '../util/prefs.ts'
 
-type State = 'title' | 'playing' | 'paused' | 'cleared' | 'won' | 'changing'
+type State = 'title' | 'worlds' | 'levels' | 'playing' | 'paused' | 'cleared' | 'won' | 'changing'
 
 const LEVEL_FRAMING: Framing = { minWidth: 17, minHeight: 13, portraitMinWidth: 13 }
 const TITLE_FRAMING: Framing = { minWidth: 31, minHeight: 15, portraitMinWidth: 28 }
@@ -44,6 +47,8 @@ export class Game {
   private readonly rig = new CameraRig()
   private readonly particles = new Particles()
   private readonly playerView = new PlayerView()
+  private readonly race = new GhostRace()
+  private readonly session = new RunSession()
   private readonly backdrop: Backdrop
   private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
   private levelView: LevelView | null = null
@@ -66,7 +71,7 @@ export class Game {
     const coarse = window.matchMedia('(pointer: coarse)').matches
     this.stage = new Stage(canvas, { shadowMapSize: coarse ? 1024 : 2048, adaptive: !options.debug })
     this.backdrop = new Backdrop(this.stage.scene)
-    this.stage.scene.add(this.particles.mesh, this.playerView.group)
+    this.stage.scene.add(this.particles.mesh, this.race.view.group, this.playerView.group)
     this.particles.reduced = this.reducedMotion.matches
     this.reducedMotion.addEventListener('change', () => {
       this.particles.reduced = this.reducedMotion.matches
@@ -75,6 +80,18 @@ export class Game {
     this.ui = new Ui(
       {
         play: () => this.startRun(),
+        worlds: () => this.showWorldSelect(),
+        timeTrial: () => this.showLevelSelect(),
+        playWorld: () => this.startRun(),
+        selectWorld: id => {
+          const world = findWorld(id)
+          if (world) {
+            this.session.selectWorld(world)
+            this.showLevelSelect()
+          }
+        },
+        selectLevel: id => this.startLevel(id),
+        levels: () => this.showLevelSelect(),
         pause: () => this.pause(),
         resume: () => this.resume(),
         restart: () => this.change(() => this.loadLevel(this.levelIndex)),
@@ -83,10 +100,12 @@ export class Game {
         again: () => this.startRun(),
         title: () => this.change(() => this.loadTitle()),
         toggleSound: () => this.toggleSound(),
+        toggleGhost: () => this.toggleGhost(),
       },
       this.input,
     )
     this.ui.setSound(this.sfx.enabled)
+    this.ui.setGhost(this.race.enabled)
     this.input.onDeviceChange = device => this.ui.setDevice(device)
     // Phones and tablets start with touch controls and touch wording
     if (coarse) this.input.setDevice('touch')
@@ -144,7 +163,7 @@ export class Game {
     this.handleActions()
 
     // The world stands still while paused and while a scene change fades in
-    if (this.state === 'paused' || this.state === 'changing') {
+    if (this.state === 'paused' || this.state === 'changing' || this.state === 'worlds' || this.state === 'levels') {
       if (this.redraw) this.draw(1, 0)
       this.redraw = false
       return
@@ -170,6 +189,14 @@ export class Game {
     switch (this.state) {
       case 'title':
         if (input.take('start')) this.startRun()
+        break
+      case 'worlds':
+        if (input.take('back')) this.change(() => this.loadTitle())
+        else this.navigateMenu()
+        break
+      case 'levels':
+        if (input.take('back')) this.showWorldSelect()
+        else this.navigateMenu()
         break
       case 'playing':
         if (input.take('pause')) this.pause()
@@ -228,7 +255,10 @@ export class Game {
     const player = world.player
     this.previousX = player.x
     this.previousY = player.y
-    const events = world.step(this.controls(first), STEP)
+    const control = this.controls(first)
+    if (this.state === 'playing') this.race.record(control)
+    const events = world.step(control, STEP)
+    if (this.state === 'playing') this.race.step()
     const p = world.player
 
     if (events.jumped) {
@@ -250,7 +280,11 @@ export class Game {
       this.particles.burst(coin.x, coin.y, 'coin')
       this.sfx.play('coin')
     }
-    if (events.checkpoint >= 0) this.sfx.play('checkpoint')
+    if (events.checkpoint >= 0) {
+      this.sfx.play('checkpoint')
+      const delta = this.race.checkpoint(events.checkpoint, world.time)
+      if (delta !== null) this.ui.race.showSplit(delta)
+    }
     if (events.goal) this.reachGoal()
     if (events.died) this.fall()
     this.rig.step(world.player, this.stage, STEP, !this.motion)
@@ -265,9 +299,14 @@ export class Game {
     if (this.state === 'playing') this.ui.setHint(this.hintFor(world.level, world.player.x))
     if (this.state === 'cleared' && !this.cardShown && this.clock - this.finishedAt > CLEAR_DELAY) {
       this.cardShown = true
-      const last = this.levelIndex === levels.length - 1
-      if (last) this.showResults()
-      else this.ui.showClear(this.results[this.levelIndex]!, last)
+      const last = this.session.isLast(this.levelIndex)
+      if (this.session.mode === 'world' && last) {
+        this.showResults()
+      } else {
+        const result = this.results[this.levelIndex]!
+        this.ui.showClear(result, false)
+        if (this.race.outcome) this.ui.race.decorateClear(result, this.race.outcome, this.session.solo)
+      }
     }
   }
 
@@ -289,6 +328,7 @@ export class Game {
       dt,
       this.motion,
     )
+    this.race.draw(alpha)
     this.levelView?.update(this.clock, this.world, this.motion)
     this.particles.update(dt)
     this.stage.render()
@@ -318,6 +358,7 @@ export class Game {
     const level = parseLevel(titleLevel)
     this.levelIndex = -1
     this.setWorld(level)
+    this.race.stop()
     this.stage.setFraming(TITLE_FRAMING)
     this.rig.follow(level, this.world.player, this.stage, titleHeight(this.stage.aspect))
     this.state = 'title'
@@ -326,13 +367,15 @@ export class Game {
   }
 
   private loadLevel(index: number) {
-    const level = parseLevel(levels[index]!)
+    const definition = this.session.level(index)
+    const level = parseLevel(definition.data)
     this.levelIndex = index
     this.setWorld(level)
+    this.race.begin(definition, level)
     this.stage.setFraming(LEVEL_FRAMING)
     this.rig.follow(level, this.world.player, this.stage)
     this.state = 'playing'
-    this.ui.setLevel(index + 1, levels.length, level.name, level.coins.length)
+    this.ui.setLevel(index + 1, this.session.count, level.name, level.coins.length)
     this.ui.show('playing')
     this.ui.showBanner(level.name)
   }
@@ -349,13 +392,21 @@ export class Game {
   }
 
   private startRun() {
+    this.session.startWorld()
     this.results = []
     this.change(() => this.loadLevel(0))
   }
 
+  private startLevel(id: string) {
+    const index = this.session.startLevel(id)
+    if (index === null) return
+    this.results = []
+    this.change(() => this.loadLevel(index))
+  }
+
   private nextLevel() {
-    const next = this.levelIndex + 1
-    if (next >= levels.length) this.showResults()
+    const next = this.session.next(this.levelIndex)
+    if (next === null) this.showResults()
     else this.change(() => this.loadLevel(next))
   }
 
@@ -402,25 +453,43 @@ export class Game {
     if (flag) this.particles.confetti(flag.x, flag.y + 3.2)
     this.sfx.play('flag')
     this.ui.setHint(null)
-    this.results[this.levelIndex] = {
+    const result: LevelResult = {
       name: world.level.name,
       time: world.time,
       coins: world.coinCount,
       total: world.level.coins.length,
       falls: world.falls,
     }
+    this.results[this.levelIndex] = result
+    this.race.finish(result)
   }
 
   private showResults() {
     this.state = 'won'
     this.cardShown = true
     const results = this.results.filter(Boolean)
-    const total = results.reduce((sum, r) => sum + r.time, 0)
-    const best = prefs.best
-    const complete = results.length === levels.length
-    const newBest = complete && (best === null || total < best)
-    if (newBest) prefs.best = total
-    this.ui.showWin(results, newBest ? total : best, newBest)
+    const record = this.session.finishWorld(results)
+    this.ui.showWin(results, record.best, record.newBest)
+  }
+
+  private showWorldSelect() {
+    this.state = 'worlds'
+    this.input.releaseAll()
+    this.input.clear()
+    this.ui.showWorlds()
+    this.redraw = true
+  }
+
+  private showLevelSelect() {
+    this.state = 'levels'
+    this.input.releaseAll()
+    this.input.clear()
+    this.ui.showLevels(this.session.world)
+    this.redraw = true
+  }
+
+  private toggleGhost() {
+    this.ui.setGhost(this.race.toggle())
   }
 
   private toggleSound() {
@@ -454,10 +523,15 @@ export class Game {
             time: game.world.time,
             checkpoint: game.world.checkpoint,
             screen: game.ui.current,
+            levelId: game.levelIndex >= 0 ? game.session.level(game.levelIndex).id : null,
+            runMode: game.session.mode,
+            ghostEnabled: game.race.enabled,
+            ghost: game.race.debugState(),
           }
         },
         // Starts a level right away and optionally plays a recorded route through it
         play(index: number, route?: string) {
+          game.session.startWorld(sunsetValley)
           game.results = []
           game.loadLevel(index)
           if (route) this.replay(route)

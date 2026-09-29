@@ -1,10 +1,19 @@
 import type { Device, Input, TouchButton } from '../input/input.ts'
+import type { WorldDefinition } from '../worlds/worlds.ts'
 import { setBlockText } from './blockType.ts'
+import { RaceUi } from './raceUi.ts'
+import { SelectionUi } from './selectionUi.ts'
 
-export type Screen = 'title' | 'playing' | 'paused' | 'clear' | 'win' | 'none'
+export type Screen = 'title' | 'worlds' | 'levels' | 'playing' | 'paused' | 'clear' | 'win' | 'none'
 
 export interface UiActions {
   play(): void
+  worlds(): void
+  timeTrial(): void
+  playWorld(): void
+  selectWorld(id: string): void
+  selectLevel(id: string): void
+  levels(): void
   pause(): void
   resume(): void
   restart(): void
@@ -13,6 +22,7 @@ export interface UiActions {
   again(): void
   title(): void
   toggleSound(): void
+  toggleGhost(): void
 }
 
 export interface LevelResult {
@@ -43,6 +53,8 @@ const byId = <T extends HTMLElement>(id: string) => {
 
 export class Ui {
   readonly app = byId<HTMLElement>('app')
+  readonly race = new RaceUi()
+  readonly selection: SelectionUi
   private readonly hud = byId<HTMLElement>('hud')
   private readonly levelNumber = byId<HTMLElement>('hud-level-number')
   private readonly levelName = byId<HTMLElement>('hud-level-name')
@@ -52,6 +64,8 @@ export class Ui {
   private readonly banner = byId<HTMLElement>('banner')
   private readonly screens: Record<Exclude<Screen, 'playing' | 'none'>, HTMLElement> = {
     title: byId('title-screen'),
+    worlds: byId('world-screen'),
+    levels: byId('level-screen'),
     paused: byId('pause-screen'),
     clear: byId('clear-screen'),
     win: byId('win-screen'),
@@ -74,6 +88,11 @@ export class Ui {
   constructor(actions: UiActions, input: Input) {
     setBlockText(byId('pause-heading'), 'Paused')
     setBlockText(byId('win-heading'), 'You made it')
+    setBlockText(byId('world-heading'), 'Worlds')
+    this.selection = new SelectionUi({
+      selectWorld: actions.selectWorld,
+      selectLevel: actions.selectLevel,
+    })
 
     const guarded = (action: () => void) => () => {
       if (performance.now() - this.openedAt < ARM_DELAY) return
@@ -82,6 +101,10 @@ export class Ui {
     byId('play-button').addEventListener('click', () => actions.play())
     byId('pause-button').addEventListener('click', () => actions.pause())
     const handlers: Record<string, () => void> = {
+      worlds: guarded(actions.worlds),
+      timeTrial: guarded(actions.timeTrial),
+      playWorld: guarded(actions.playWorld),
+      levels: guarded(actions.levels),
       resume: guarded(actions.resume),
       restart: guarded(actions.restart),
       quit: guarded(actions.quit),
@@ -95,6 +118,9 @@ export class Ui {
     }
     for (const button of this.app.querySelectorAll<HTMLButtonElement>('[data-sound-toggle]')) {
       button.addEventListener('click', () => actions.toggleSound())
+    }
+    for (const button of this.app.querySelectorAll<HTMLButtonElement>('[data-ghost-toggle]')) {
+      button.addEventListener('click', () => actions.toggleGhost())
     }
     // A button clicked with a mouse or finger outside a dialog should not keep focus, or
     // the next press of Space would click it again instead of jumping. Keyboard users keep
@@ -141,8 +167,8 @@ export class Ui {
     if (screen !== 'playing') this.setHint(null)
     this.updateTouch()
     this.openedAt = performance.now()
-    const dialog = screen === 'paused' || screen === 'clear' || screen === 'win' ? this.screens[screen] : null
-    dialog?.querySelector<HTMLButtonElement>('.button-primary')?.focus({ preventScroll: true })
+    const dialog = this.dialog()
+    dialog?.querySelector<HTMLButtonElement>('.button-primary, .select-card, .button')?.focus({ preventScroll: true })
   }
 
   setLevel(number: number, total: number, name: string, coins: number) {
@@ -153,6 +179,7 @@ export class Ui {
     this.setCoins(0, coins)
     this.shownTime = ''
     this.setTime(0)
+    this.race.clearSplit()
   }
 
   setCoins(count: number, total: number) {
@@ -231,6 +258,20 @@ export class Ui {
     this.show('win')
   }
 
+  showWorlds() {
+    this.selection.renderWorlds()
+    this.show('worlds')
+  }
+
+  showLevels(world: WorldDefinition) {
+    this.selection.renderLevels(world)
+    this.show('levels')
+  }
+
+  setGhost(on: boolean) {
+    this.race.setGhost(on)
+  }
+
   setSound(on: boolean) {
     for (const button of this.app.querySelectorAll<HTMLButtonElement>('[data-sound-toggle]')) {
       button.textContent = on ? 'Sound on' : 'Sound off'
@@ -259,7 +300,9 @@ export class Ui {
 
   private dialog() {
     const screen = this.screen
-    return screen === 'paused' || screen === 'clear' || screen === 'win' ? this.screens[screen] : null
+    return screen === 'worlds' || screen === 'levels' || screen === 'paused' || screen === 'clear' || screen === 'win'
+      ? this.screens[screen]
+      : null
   }
 
   // Covers the screen, runs the change, then uncovers it
