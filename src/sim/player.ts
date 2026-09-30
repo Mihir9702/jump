@@ -26,6 +26,10 @@ export interface Controls {
   // Edges: true only on the step after the button went down
   jumpPressed: boolean
   downPressed: boolean
+  attackPressed?: boolean
+  skillPressed?: boolean
+  potionHpPressed?: boolean
+  potionMpPressed?: boolean
 }
 
 export const Support = { None: 0, Solid: 1, OneWay: 2 } as const
@@ -46,6 +50,28 @@ export interface Player {
   dropUntil: number
   canCut: boolean
   clock: number
+  // MapleStory RPG & Combat
+  hp: number
+  maxHp: number
+  mp: number
+  maxMp: number
+  level: number
+  exp: number
+  maxExp: number
+  str: number
+  dex: number
+  int: number
+  luk: number
+  ap: number
+  mesos: number
+  redPotions: number
+  bluePotions: number
+  attacking: boolean
+  attackTimer: number
+  attackHitbox: { x: number; y: number; width: number; height: number } | null
+  invincibleUntil: number
+  doubleJumpAvailable: boolean
+  dashTimer: number
 }
 
 // Things that happened during a step, for sound, particles and animation
@@ -55,6 +81,9 @@ export interface StepEvents {
   landed: number
   dropped: boolean
   bonked: boolean
+  attacked: boolean
+  flashJumped: boolean
+  levelUp: boolean
 }
 
 export const noControls = (): Controls => ({
@@ -63,6 +92,8 @@ export const noControls = (): Controls => ({
   jumpHeld: false,
   jumpPressed: false,
   downPressed: false,
+  attackPressed: false,
+  skillPressed: false,
 })
 
 export const createStepEvents = (): StepEvents => ({
@@ -70,6 +101,9 @@ export const createStepEvents = (): StepEvents => ({
   landed: 0,
   dropped: false,
   bonked: false,
+  attacked: false,
+  flashJumped: false,
+  levelUp: false,
 })
 
 export function createPlayer(x: number, y: number): Player {
@@ -87,6 +121,27 @@ export function createPlayer(x: number, y: number): Player {
     dropUntil: 0,
     canCut: false,
     clock: 0,
+    hp: 100,
+    maxHp: 100,
+    mp: 50,
+    maxMp: 50,
+    level: 1,
+    exp: 0,
+    maxExp: 100,
+    str: 12,
+    dex: 10,
+    int: 5,
+    luk: 5,
+    ap: 0,
+    mesos: 0,
+    redPotions: 3,
+    bluePotions: 2,
+    attacking: false,
+    attackTimer: 0,
+    attackHitbox: null,
+    invincibleUntil: 0,
+    doubleJumpAvailable: true,
+    dashTimer: 0,
   }
 }
 
@@ -104,6 +159,40 @@ export function stepPlayer(
 ): void {
   p.clock += dt
 
+  // Attack timer cooldown
+  if (p.attackTimer > 0) {
+    p.attackTimer -= dt
+    if (p.attackTimer <= 0) {
+      p.attacking = false
+      p.attackHitbox = null
+    }
+  }
+
+  // Basic Attack
+  if (input.attackPressed && p.attackTimer <= 0) {
+    p.attacking = true
+    p.attackTimer = 0.22
+    const hbWidth = 1.6
+    const hbHeight = 1.3
+    p.attackHitbox = {
+      x: p.facing > 0 ? p.x + 0.1 : p.x - hbWidth - 0.1,
+      y: p.y,
+      width: hbWidth,
+      height: hbHeight,
+    }
+    events.attacked = true
+  }
+
+  // Potion usage
+  if (input.potionHpPressed && p.redPotions > 0 && p.hp < p.maxHp) {
+    p.redPotions--
+    p.hp = Math.min(p.maxHp, p.hp + 50)
+  }
+  if (input.potionMpPressed && p.bluePotions > 0 && p.mp < p.maxMp) {
+    p.bluePotions--
+    p.mp = Math.min(p.maxMp, p.mp + 40)
+  }
+
   const direction = (input.right ? 1 : 0) - (input.left ? 1 : 0)
   if (direction !== 0) {
     const accel = p.grounded ? GROUND_ACCEL : AIR_ACCEL
@@ -114,8 +203,20 @@ export function stepPlayer(
     p.vx = Math.abs(p.vx) <= friction ? 0 : p.vx - Math.sign(p.vx) * friction
   }
 
+  if (p.grounded) p.doubleJumpAvailable = true
+
   if (input.jumpPressed) p.buffer = JUMP_BUFFER
   if (input.downPressed) p.dropBuffer = DROP_BUFFER
+
+  // Iconic MapleStory Flash Jump (double jump while airborne)
+  if (input.jumpPressed && !p.grounded && p.coyote <= 0 && p.doubleJumpAvailable && p.mp >= 5) {
+    p.doubleJumpAvailable = false
+    p.mp -= 5
+    p.vx = p.facing * RUN_SPEED * 1.65
+    p.vy = Math.max(p.vy, JUMP_SPEED * 0.45)
+    p.canCut = false
+    events.flashJumped = true
+  }
 
   p.coyote = p.grounded ? COYOTE_TIME : Math.max(0, p.coyote - dt)
   p.buffer = Math.max(0, p.buffer - dt)

@@ -73,15 +73,17 @@
           </div>
           <dl class="controls" data-device-only="keyboard">
             <div><dt>Move</dt><dd><kbd>A</kbd> <kbd>D</kbd> or <kbd>←</kbd> <kbd>→</kbd></dd></div>
-            <div><dt>Jump</dt><dd><kbd>W</kbd> <kbd>Space</kbd> or <kbd>↑</kbd>, hold for higher</dd></div>
+            <div><dt>Jump / Flash Jump</dt><dd><kbd>W</kbd>, <kbd>Space</kbd> or <kbd>↑</kbd> (double tap in air)</dd></div>
+            <div><dt>Attack</dt><dd><kbd>Ctrl</kbd> or <kbd>J</kbd> or <kbd>Z</kbd></dd></div>
+            <div><dt>Potions</dt><dd><kbd>1</kbd> HP, <kbd>2</kbd> MP</dd></div>
             <div><dt>Drop through</dt><dd><kbd>S</kbd> or <kbd>↓</kbd></dd></div>
             <div><dt>Pause</dt><dd><kbd>Esc</kbd> or <kbd>P</kbd></dd></div>
           </dl>
           <p class="controls" data-device-only="touch">
-            Hold jump for a higher jump. The down button drops you through thin platforms.
+            Hold jump for a higher jump. Tap Jump in air for Flash Jump! Tap Attack to slash mobs.
           </p>
           <p class="controls" data-device-only="gamepad">
-            Stick or d-pad to move, A to jump (hold for higher), down to drop through, Start to pause.
+            Stick to move, A to jump (double tap in air for Flash Jump), X to attack, Start to pause.
           </p>
         </div>
         <footer class="title-footer">
@@ -168,8 +170,44 @@
           <button class="touch-button touch-jump" type="button" data-touch="jump" aria-label="Jump">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15l7-8 7 8z" /></svg>
           </button>
+          <button class="touch-button touch-attack" type="button" data-touch="attack" aria-label="Attack">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4l5.5 5.5-9 9-5.5-5.5 9-9zM3 21l4-1-3-3-1 4z" /></svg>
+          </button>
         </div>
       </div>
+
+      <footer class="maple-hud" id="maple-hud" hidden>
+        <div class="maple-character">
+          <span class="maple-lvl-badge" id="maple-lvl">Lv. 1</span>
+          <span class="maple-name">Cyan Striker</span>
+        </div>
+        <div class="maple-bars">
+          <div class="maple-gauge hp-gauge" title="Health Points">
+            <div class="gauge-fill" id="hp-fill" style="width: 100%"></div>
+            <span class="gauge-label" id="hp-text">100 / 100</span>
+          </div>
+          <div class="maple-gauge mp-gauge" title="Mana Points">
+            <div class="gauge-fill" id="mp-fill" style="width: 100%"></div>
+            <span class="gauge-label" id="mp-text">50 / 50</span>
+          </div>
+        </div>
+        <div class="maple-potions">
+          <button class="potion-slot" id="potion-hp" type="button" aria-label="HP Potion (1)">
+            <span class="potion-icon potion-red"></span>
+            <span class="potion-count" id="count-red">3</span>
+            <kbd class="potion-key">1</kbd>
+          </button>
+          <button class="potion-slot" id="potion-mp" type="button" aria-label="MP Potion (2)">
+            <span class="potion-icon potion-blue"></span>
+            <span class="potion-count" id="count-blue">2</span>
+            <kbd class="potion-key">2</kbd>
+          </button>
+        </div>
+        <div class="maple-exp-bar">
+          <div class="exp-fill" id="exp-fill" style="width: 0%"></div>
+          <span class="exp-label" id="exp-text">EXP 0.00%</span>
+        </div>
+      </footer>
 
       <div class="fade" id="fade" aria-hidden="true"></div>
       <p class="fallback" id="fallback" hidden>

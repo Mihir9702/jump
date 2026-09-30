@@ -1,4 +1,5 @@
 import type { Device, Input, TouchButton } from '../input/input.ts'
+import type { Player } from '../sim/player.ts'
 import type { WorldDefinition } from '../worlds/worlds.ts'
 import { setBlockText } from './blockType.ts'
 import { RaceUi } from './raceUi.ts'
@@ -77,6 +78,16 @@ export class Ui {
   private readonly winBest = byId<HTMLElement>('win-best')
   private readonly touch = byId<HTMLElement>('touch')
   private readonly fadeLayer = byId<HTMLElement>('fade')
+  private readonly mapleHud = byId<HTMLElement>('maple-hud')
+  private readonly mapleLvl = byId<HTMLElement>('maple-lvl')
+  private readonly hpFill = byId<HTMLElement>('hp-fill')
+  private readonly hpText = byId<HTMLElement>('hp-text')
+  private readonly mpFill = byId<HTMLElement>('mp-fill')
+  private readonly mpText = byId<HTMLElement>('mp-text')
+  private readonly countRed = byId<HTMLElement>('count-red')
+  private readonly countBlue = byId<HTMLElement>('count-blue')
+  private readonly expFill = byId<HTMLElement>('exp-fill')
+  private readonly expText = byId<HTMLElement>('exp-text')
   private screen: Screen = 'none'
   private openedAt = 0
   private shownTime = ''
@@ -129,6 +140,8 @@ export class Ui {
       const button = (event.target as Element | null)?.closest('button')
       if (button && event.detail > 0 && !button.closest('[role="dialog"]')) button.blur()
     })
+    byId('potion-hp')?.addEventListener('click', () => input.trigger('potionHp'))
+    byId('potion-mp')?.addEventListener('click', () => input.trigger('potionMp'))
     this.bindTouch(input)
   }
 
@@ -164,6 +177,7 @@ export class Ui {
       element.hidden = !visible
     }
     this.hud.hidden = !(screen === 'playing' || screen === 'paused' || screen === 'clear')
+    this.mapleHud.hidden = !(screen === 'playing')
     if (screen !== 'playing') this.setHint(null)
     this.updateTouch()
     this.openedAt = performance.now()
@@ -314,6 +328,24 @@ export class Ui {
     layer.classList.remove('on')
   }
 
+  updateMaple(p: Player) {
+    this.mapleLvl.textContent = `Lv. ${p.level}`
+    const hpPct = Math.max(0, Math.min(100, (p.hp / p.maxHp) * 100))
+    this.hpFill.style.width = `${hpPct}%`
+    this.hpText.textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`
+
+    const mpPct = Math.max(0, Math.min(100, (p.mp / p.maxMp) * 100))
+    this.mpFill.style.width = `${mpPct}%`
+    this.mpText.textContent = `${Math.ceil(p.mp)} / ${p.maxMp}`
+
+    this.countRed.textContent = String(p.redPotions)
+    this.countBlue.textContent = String(p.bluePotions)
+
+    const expPct = Math.max(0, Math.min(100, (p.exp / p.maxExp) * 100))
+    this.expFill.style.width = `${expPct}%`
+    this.expText.textContent = `EXP ${expPct.toFixed(1)}%`
+  }
+
   private bindTouch(input: Input) {
     const pointers = new Map<number, TouchButton>()
     const buttonAt = (x: number, y: number): TouchButton | null => {
@@ -322,7 +354,7 @@ export class Ui {
     }
     const refresh = () => {
       const held = new Set(pointers.values())
-      for (const button of ['left', 'right', 'jump', 'down'] as const) {
+      for (const button of ['left', 'right', 'jump', 'down', 'attack'] as const) {
         input.setTouch(button, held.has(button))
         this.touch.querySelector(`[data-touch="${button}"]`)?.classList.toggle('pressed', held.has(button))
       }

@@ -7,6 +7,8 @@ import { RunSession } from './runSession.ts'
 import { Backdrop } from '../render/backdrop.ts'
 import { CameraRig } from '../render/cameraRig.ts'
 import { LevelView } from '../render/levelView.ts'
+import { CombatView } from '../render/combatView.ts'
+import { MobsView } from '../render/mobsView.ts'
 import { Particles } from '../render/particles.ts'
 import { PlayerView } from '../render/playerView.ts'
 import { type Framing, Stage } from '../render/stage.ts'
@@ -50,6 +52,8 @@ export class Game {
   private readonly race = new GhostRace()
   private readonly session = new RunSession()
   private readonly backdrop: Backdrop
+  private readonly mobsView = new MobsView()
+  private readonly combatView: CombatView
   private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
   private levelView: LevelView | null = null
   private world!: World
@@ -71,7 +75,6 @@ export class Game {
     const coarse = window.matchMedia('(pointer: coarse)').matches
     this.stage = new Stage(canvas, { shadowMapSize: coarse ? 1024 : 2048, adaptive: !options.debug })
     this.backdrop = new Backdrop(this.stage.scene)
-    this.stage.scene.add(this.particles.mesh, this.race.view.group, this.playerView.group)
     this.particles.reduced = this.reducedMotion.matches
     this.reducedMotion.addEventListener('change', () => {
       this.particles.reduced = this.reducedMotion.matches
@@ -103,6 +106,14 @@ export class Game {
         toggleGhost: () => this.toggleGhost(),
       },
       this.input,
+    )
+    this.combatView = new CombatView(this.ui.app)
+    this.stage.scene.add(
+      this.particles.mesh,
+      this.race.view.group,
+      this.playerView.group,
+      this.mobsView.group,
+      this.combatView.group,
     )
     this.ui.setSound(this.sfx.enabled)
     this.ui.setGhost(this.race.enabled)
@@ -211,7 +222,7 @@ export class Game {
         if (this.cardShown) this.navigateMenu()
         break
     }
-    input.keepOnly('jump', 'down')
+    input.keepOnly('jump', 'down', 'attack', 'skill', 'potionHp', 'potionMp')
   }
 
   private navigateMenu() {
@@ -247,6 +258,10 @@ export class Game {
       jumpHeld: held.jump,
       jumpPressed: first && this.input.take('jump'),
       downPressed: first && this.input.take('down'),
+      attackPressed: first && this.input.take('attack'),
+      skillPressed: first && this.input.take('skill'),
+      potionHpPressed: first && this.input.take('potionHp'),
+      potionMpPressed: first && this.input.take('potionMp'),
     }
   }
 
@@ -264,6 +279,23 @@ export class Game {
     if (events.jumped) {
       this.playerView.jump()
       this.sfx.play('jump')
+    }
+    if (events.flashJumped) {
+      this.particles.burst(p.x, p.y, 'player')
+      this.sfx.play('jump')
+    }
+    if (events.attacked) {
+      this.sfx.play('slash')
+    }
+    if (events.mobHit) {
+      this.sfx.play('hit')
+    }
+    if (events.playerHurt) {
+      this.sfx.play('bonk')
+    }
+    if (events.levelUp) {
+      this.sfx.play('levelUp')
+      this.combatView.triggerLevelUp(p.x, p.y)
     }
     if (events.landed > 0) {
       const strength = Math.min(1, events.landed / (MAX_FALL * 0.6))
@@ -295,6 +327,7 @@ export class Game {
     if (this.state === 'playing' || this.state === 'cleared') {
       this.ui.setCoins(world.coinCount, world.level.coins.length)
       this.ui.setTime(world.time)
+      this.ui.updateMaple(world.player)
     }
     if (this.state === 'playing') this.ui.setHint(this.hintFor(world.level, world.player.x))
     if (this.state === 'cleared' && !this.cardShown && this.clock - this.finishedAt > CLEAR_DELAY) {
@@ -330,12 +363,15 @@ export class Game {
     )
     this.race.draw(alpha)
     this.levelView?.update(this.clock, this.world, this.motion)
+    this.mobsView.update(this.world.mobManager, this.clock, dt)
+    this.combatView.update(this.world.mobManager, this.world.player, this.stage, dt)
     this.particles.update(dt)
     this.stage.render()
   }
 
   private setWorld(level: Level) {
     this.levelView?.dispose()
+    this.combatView.clear()
     this.world = new World(level)
     this.levelView = new LevelView(level)
     this.stage.scene.add(this.levelView.group)
@@ -367,10 +403,28 @@ export class Game {
   }
 
   private loadLevel(index: number) {
+    const prevPlayer = this.world ? { ...this.world.player } : null
     const definition = this.session.level(index)
     const level = parseLevel(definition.data)
     this.levelIndex = index
     this.setWorld(level)
+    if (prevPlayer && this.levelIndex > 0) {
+      this.world.player.level = prevPlayer.level
+      this.world.player.exp = prevPlayer.exp
+      this.world.player.maxExp = prevPlayer.maxExp
+      this.world.player.str = prevPlayer.str
+      this.world.player.dex = prevPlayer.dex
+      this.world.player.int = prevPlayer.int
+      this.world.player.luk = prevPlayer.luk
+      this.world.player.ap = prevPlayer.ap
+      this.world.player.mesos = prevPlayer.mesos
+      this.world.player.redPotions = prevPlayer.redPotions
+      this.world.player.bluePotions = prevPlayer.bluePotions
+      this.world.player.maxHp = prevPlayer.maxHp
+      this.world.player.hp = prevPlayer.maxHp
+      this.world.player.maxMp = prevPlayer.maxMp
+      this.world.player.mp = prevPlayer.maxMp
+    }
     this.race.begin(definition, level)
     this.stage.setFraming(LEVEL_FRAMING)
     this.rig.follow(level, this.world.player, this.stage)

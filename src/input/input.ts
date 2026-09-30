@@ -5,6 +5,10 @@
 export type Action =
   | 'jump'
   | 'down'
+  | 'attack'
+  | 'skill'
+  | 'potionHp'
+  | 'potionMp'
   | 'start'
   | 'pause'
   | 'confirm'
@@ -17,7 +21,7 @@ export type Action =
   | 'navRight'
 
 export type Device = 'keyboard' | 'touch' | 'gamepad'
-export type TouchButton = 'left' | 'right' | 'jump' | 'down'
+export type TouchButton = 'left' | 'right' | 'jump' | 'down' | 'attack' | 'skill'
 
 interface Held {
   left: boolean
@@ -72,6 +76,10 @@ export class Input {
     return this.queue.delete(action)
   }
 
+  trigger(action: Action) {
+    this.queue.add(action)
+  }
+
   clear() {
     this.queue.clear()
   }
@@ -88,11 +96,15 @@ export class Input {
   }
 
   setTouch(button: TouchButton, down: boolean) {
-    const was = this.touch[button]
-    this.touch[button] = down
+    const was = (this.touch as any)[button] ?? false
+    if (button === 'left' || button === 'right' || button === 'jump' || button === 'down') {
+      this.touch[button] = down
+    }
     if (down && !was) {
       if (button === 'jump') this.queue.add('jump')
       if (button === 'down') this.queue.add('down')
+      if (button === 'attack') this.queue.add('attack')
+      if (button === 'skill') this.queue.add('skill')
     }
     this.setDevice('touch')
   }
@@ -104,7 +116,7 @@ export class Input {
   }
 
   private readonly onKeyDown = (event: KeyboardEvent) => {
-    if (event.metaKey || event.ctrlKey || event.altKey) return
+    if (event.metaKey || event.altKey) return
     const code = event.code
     // Focused buttons and links handle Enter and Space themselves
     const target = event.target
@@ -123,6 +135,14 @@ export class Input {
     } else if (JUMP.includes(code)) {
       press('jump')
       if (code !== 'Space') press('navUp')
+    } else if (code === 'ControlLeft' || code === 'ControlRight' || code === 'KeyJ' || code === 'KeyZ') {
+      press('attack')
+    } else if (code === 'ShiftLeft' || code === 'ShiftRight' || code === 'KeyK' || code === 'KeyX') {
+      press('skill')
+    } else if (code === 'Digit1') {
+      press('potionHp')
+    } else if (code === 'Digit2') {
+      press('potionMp')
     } else if (code === 'Escape' || code === 'KeyP') press('pause')
     else if (code === 'Enter' || code === 'NumpadEnter') {
       press('confirm')

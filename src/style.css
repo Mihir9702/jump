@@ -822,3 +822,247 @@ button.select-card:active {
     right: 0;
   }
 }
+
+/* ==========================================================================
+   MapleStory Floating Damage Numbers & Combat HUD
+   ========================================================================== */
+
+.dmg-num {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  font-family: 'Arial Black', Impact, ui-rounded, sans-serif;
+  font-weight: 900;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+  text-shadow:
+    2px 2px 0 #000,
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    0 3px 6px rgba(0, 0, 0, 0.75);
+  animation: dmgPop 0.8s ease-out forwards;
+}
+
+@keyframes dmgPop {
+  0% {
+    transform: translate(-50%, -60%) scale(0.65);
+  }
+  20% {
+    transform: translate(-50%, -110%) scale(1.18);
+  }
+  35% {
+    transform: translate(-50%, -100%) scale(1);
+  }
+  100% {
+    transform: translate(-50%, -170%) scale(0.95);
+  }
+}
+
+.dmg-normal {
+  font-size: 26px;
+  color: #ffea44;
+}
+
+.dmg-crit {
+  font-size: 32px;
+  color: #ff4810;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.crit-badge {
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #ffe666;
+  text-transform: uppercase;
+  margin-bottom: -2px;
+}
+
+.dmg-player {
+  font-size: 24px;
+  color: #f43f5e;
+}
+
+/* MapleStory Bottom Status Bar */
+.maple-hud {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px 6px;
+  background: rgba(14, 43, 46, 0.94);
+  border: 1px solid rgba(88, 211, 208, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  z-index: 12;
+  font-family: var(--font);
+}
+
+.maple-character {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.maple-lvl-badge {
+  background: #ffcc15;
+  color: #1a2228;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.maple-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+.maple-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.maple-gauge {
+  position: relative;
+  height: 14px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gauge-fill {
+  height: 100%;
+  transition: width 150ms ease-out;
+}
+
+.hp-gauge .gauge-fill {
+  background: linear-gradient(90deg, #e53935, #ff5722);
+}
+
+.mp-gauge .gauge-fill {
+  background: linear-gradient(90deg, #1e88e5, #00bcd4);
+}
+
+.gauge-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+  line-height: 1;
+}
+
+.maple-potions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.potion-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.potion-slot:active {
+  transform: scale(0.94);
+}
+
+.potion-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.potion-red {
+  background: #f03632;
+  box-shadow: 0 0 6px #f03632;
+}
+
+.potion-blue {
+  background: #2196f3;
+  box-shadow: 0 0 6px #2196f3;
+}
+
+.potion-count {
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.potion-key {
+  position: absolute;
+  bottom: -2px;
+  left: 2px;
+  font-size: 9px;
+  padding: 1px 3px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 3px;
+  color: #ffcc15;
+}
+
+.maple-exp-bar {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  margin-top: 2px;
+}
+
+.exp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffb300, #ffea00);
+  transition: width 200ms ease-out;
+}
+
+.exp-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.touch-attack {
+  background: #e53935;
+}
+
+.touch-attack:active {
+  background: #c62828;
+}
+
