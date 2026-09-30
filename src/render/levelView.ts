@@ -83,9 +83,9 @@ export class LevelView {
     this.level = level
     const random = createRandom(hashString(level.name))
     const box = this.track(new BoxGeometry(1, 1, 1))
-    // Smooth satin toy finish like Super Mario 3D Land blocks
-    const terrain = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.54 }))
-    const decor = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.46, flatShading: true }))
+    // Tactile, natural 3D finish that catches sunlight softly on top faces
+    const terrain = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.68 }))
+    const decor = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.58, flatShading: true }))
 
     const dirt: Instance[] = []
     const grass: Instance[] = []

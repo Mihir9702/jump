@@ -155,3 +155,9 @@ level cannot be finished, or a coin cannot be reached, with the real physics.
 Everything in v2 is original to this project. The blocks, scenery and effects are built
 from geometry in code, the sounds are synthesized, and the block lettering is drawn in
 code. There are no font files: the interface uses your system font. The 2022 version is preserved separately on the `archive/v1` branch.
+
+## Copyright and reuse
+
+Jump is source-visible, but the project is **not released under an open-source license**. The current game's code, levels, original visuals, screenshots, documentation and identity are reserved. See [COPYRIGHT.md](COPYRIGHT.md).
+
+Dependencies such as Three.js keep their own upstream licenses. The preserved `archive/v1` branch contains two legacy image assets with undocumented provenance; they are retained only as part of the historical branch and are not licensed for reuse by this project.

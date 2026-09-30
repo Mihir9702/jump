@@ -13,10 +13,10 @@ import {
 } from 'three'
 import { palette } from './palette.ts'
 
-// An elevated 3D diorama pitch (19°) gives the characteristic Super Mario 3D Land
-// depth, revealing platform tops, checkerboard depth, and clear contact shadows.
-export const FOV = 26
-export const PITCH = 19
+// A gentle 11° pitch and focused 22° FOV give comfortable 3D diorama depth,
+// revealing platform tops and contact shadows without motion strain or perspective warping.
+export const FOV = 22
+export const PITCH = 11
 
 // What the camera has to fit at the gameplay plane (z = 0), in tiles. Portrait screens
 // fit a narrower width so the world does not shrink to a strip.
