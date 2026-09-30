@@ -68,6 +68,7 @@
             </p>
           </div>
           <div class="title-tools">
+            <button class="text-button" type="button" data-action="characters">Heroes (12)</button>
             <button class="text-button" type="button" data-action="worlds">World select</button>
             <button class="text-button" type="button" data-action="timeTrial">Time trial</button>
           </div>
@@ -100,6 +101,17 @@
         <div class="menu">
           <button class="button" type="button" data-action="title">Back to title</button>
         </div>
+      </section>
+
+      <section class="panel browser-panel character-panel" id="character-screen" role="dialog" aria-modal="true" aria-labelledby="character-heading" hidden>
+        <div class="character-header-row">
+          <div>
+            <h2 class="block-heading" id="character-heading">Hero Roster</h2>
+            <p class="summary">Select from 12 playable classes. Each possesses unique weapons, stats, and accessories.</p>
+          </div>
+          <button class="icon-button close-icon-btn" id="character-close" type="button" aria-label="Close">✕</button>
+        </div>
+        <div class="character-grid" id="character-list"></div>
       </section>
 
       <section class="panel browser-panel" id="level-screen" role="dialog" aria-modal="true" aria-labelledby="level-heading" hidden>
@@ -176,38 +188,81 @@
         </div>
       </div>
 
-      <footer class="maple-hud" id="maple-hud" hidden>
-        <div class="maple-character">
-          <span class="maple-lvl-badge" id="maple-lvl">Lv. 1</span>
-          <span class="maple-name">Cyan Striker</span>
-        </div>
-        <div class="maple-bars">
-          <div class="maple-gauge hp-gauge" title="Health Points">
-            <div class="gauge-fill" id="hp-fill" style="width: 100%"></div>
-            <span class="gauge-label" id="hp-text">100 / 100</span>
+      <!-- Sleek Minimalist Top-Left HUD -->
+      <header class="player-hud" id="player-hud" hidden>
+        <div class="hud-hero-plate">
+          <div class="hero-avatar" id="hud-hero-avatar">
+            <span class="hero-class-icon" id="hud-class-icon">🌌</span>
+            <span class="hero-lvl-badge" id="hud-lvl">Lv. 1</span>
           </div>
-          <div class="maple-gauge mp-gauge" title="Mana Points">
-            <div class="gauge-fill" id="mp-fill" style="width: 100%"></div>
-            <span class="gauge-label" id="mp-text">50 / 50</span>
+          <div class="hero-identity">
+            <div class="hero-name-row">
+              <span class="hero-name" id="hud-hero-name">Vesper</span>
+              <span class="hero-class-title" id="hud-class-title">Starlight Nomad</span>
+            </div>
+            <div class="hud-bars">
+              <div class="hud-bar hp-bar" title="Health Points">
+                <div class="bar-fill" id="hp-fill" style="width: 100%"></div>
+                <span class="bar-label" id="hp-text">100 / 100</span>
+              </div>
+              <div class="hud-bar mp-bar" title="Mana Points">
+                <div class="bar-fill" id="mp-fill" style="width: 100%"></div>
+                <span class="bar-label" id="mp-text">60 / 60</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="maple-potions">
-          <button class="potion-slot" id="potion-hp" type="button" aria-label="HP Potion (1)">
-            <span class="potion-icon potion-red"></span>
-            <span class="potion-count" id="count-red">3</span>
-            <kbd class="potion-key">1</kbd>
-          </button>
-          <button class="potion-slot" id="potion-mp" type="button" aria-label="MP Potion (2)">
-            <span class="potion-icon potion-blue"></span>
-            <span class="potion-count" id="count-blue">2</span>
-            <kbd class="potion-key">2</kbd>
-          </button>
+        <div class="hud-sub-plate">
+          <div class="hud-potions">
+            <button class="potion-pill" id="potion-hp" type="button" title="HP Potion (1)">
+              <span class="potion-dot red"></span>
+              <span class="potion-count" id="count-red">3</span>
+              <kbd>1</kbd>
+            </button>
+            <button class="potion-pill" id="potion-mp" type="button" title="MP Potion (2)">
+              <span class="potion-dot blue"></span>
+              <span class="potion-count" id="count-blue">2</span>
+              <kbd>2</kbd>
+            </button>
+          </div>
+          <div class="hud-gold-plate" title="Mesos / Gold">
+            <span class="gold-icon">🪙</span>
+            <span class="gold-count" id="hud-gold">0</span>
+          </div>
+          <div class="hud-exp-row">
+            <div class="exp-bar">
+              <div class="exp-fill" id="exp-fill" style="width: 0%"></div>
+            </div>
+            <span class="exp-label" id="exp-text">0.0%</span>
+          </div>
         </div>
-        <div class="maple-exp-bar">
-          <div class="exp-fill" id="exp-fill" style="width: 0%"></div>
-          <span class="exp-label" id="exp-text">EXP 0.00%</span>
+      </header>
+
+      <!-- Bottom-Left MMORPG Chat System -->
+      <section class="chat-hud" id="chat-hud" hidden>
+        <div class="chat-header">
+          <div class="chat-tabs">
+            <button class="chat-tab active" data-channel="all" type="button">All</button>
+            <button class="chat-tab" data-channel="local" type="button">Local</button>
+            <button class="chat-tab" data-channel="party" type="button">Party</button>
+            <button class="chat-tab" data-channel="system" type="button">System</button>
+          </div>
+          <button class="chat-collapse" id="chat-collapse" type="button" aria-label="Toggle chat">▾</button>
         </div>
-      </footer>
+        <div class="chat-messages" id="chat-messages" role="log" aria-live="polite"></div>
+        <form class="chat-input-bar" id="chat-form">
+          <span class="chat-prompt">💬</span>
+          <input
+            type="text"
+            class="chat-input"
+            id="chat-input"
+            placeholder="Press Enter to chat (/help for commands)..."
+            maxlength="120"
+            autocomplete="off"
+          />
+        </form>
+      </section>
+      <div class="speech-bubble-overlay" id="speech-bubble-overlay" aria-hidden="true"></div>
 
       <div class="fade" id="fade" aria-hidden="true"></div>
       <p class="fallback" id="fallback" hidden>

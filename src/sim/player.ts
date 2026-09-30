@@ -35,6 +35,9 @@ export interface Controls {
 export const Support = { None: 0, Solid: 1, OneWay: 2 } as const
 export type SupportKind = (typeof Support)[keyof typeof Support]
 
+import type { CharacterClass } from './classes.ts'
+import { loadSavedClass } from './classes.ts'
+
 export interface Player {
   // Bottom center of the cube, in tiles. y points up.
   x: number
@@ -51,6 +54,7 @@ export interface Player {
   canCut: boolean
   clock: number
   // MapleStory RPG & Combat
+  characterClass: CharacterClass
   hp: number
   maxHp: number
   mp: number
@@ -71,6 +75,7 @@ export interface Player {
   attackHitbox: { x: number; y: number; width: number; height: number } | null
   invincibleUntil: number
   doubleJumpAvailable: boolean
+  hasJumpedFromGround: boolean
   dashTimer: number
 }
 
@@ -106,7 +111,7 @@ export const createStepEvents = (): StepEvents => ({
   levelUp: false,
 })
 
-export function createPlayer(x: number, y: number): Player {
+export function createPlayer(x: number, y: number, heroClass: CharacterClass = loadSavedClass()): Player {
   return {
     x,
     y,
@@ -121,17 +126,18 @@ export function createPlayer(x: number, y: number): Player {
     dropUntil: 0,
     canCut: false,
     clock: 0,
-    hp: 100,
-    maxHp: 100,
-    mp: 50,
-    maxMp: 50,
+    characterClass: heroClass,
+    hp: heroClass.stats.hp,
+    maxHp: heroClass.stats.hp,
+    mp: heroClass.stats.mp,
+    maxMp: heroClass.stats.mp,
     level: 1,
     exp: 0,
     maxExp: 100,
-    str: 12,
-    dex: 10,
-    int: 5,
-    luk: 5,
+    str: heroClass.stats.str,
+    dex: heroClass.stats.dex,
+    int: heroClass.stats.int,
+    luk: heroClass.stats.luk,
     ap: 0,
     mesos: 0,
     redPotions: 3,
@@ -141,6 +147,7 @@ export function createPlayer(x: number, y: number): Player {
     attackHitbox: null,
     invincibleUntil: 0,
     doubleJumpAvailable: true,
+    hasJumpedFromGround: false,
     dashTimer: 0,
   }
 }
@@ -203,14 +210,26 @@ export function stepPlayer(
     p.vx = Math.abs(p.vx) <= friction ? 0 : p.vx - Math.sign(p.vx) * friction
   }
 
-  if (p.grounded) p.doubleJumpAvailable = true
+  if (p.grounded) {
+    p.doubleJumpAvailable = true
+    p.hasJumpedFromGround = false
+  }
 
   if (input.jumpPressed) p.buffer = JUMP_BUFFER
   if (input.downPressed) p.dropBuffer = DROP_BUFFER
 
-  // Iconic MapleStory Flash Jump (double jump while airborne)
-  if (input.jumpPressed && !p.grounded && p.coyote <= 0 && p.doubleJumpAvailable && p.mp >= 5) {
+  // Iconic MapleStory Flash Jump (double jump while airborne after jumping from ground)
+  if (
+    input.jumpPressed &&
+    !p.grounded &&
+    p.coyote <= 0 &&
+    p.hasJumpedFromGround &&
+    p.doubleJumpAvailable &&
+    p.vy > -2 &&
+    p.mp >= 5
+  ) {
     p.doubleJumpAvailable = false
+    p.hasJumpedFromGround = false
     p.mp -= 5
     p.vx = p.facing * RUN_SPEED * 1.65
     p.vy = Math.max(p.vy, JUMP_SPEED * 0.45)
@@ -227,6 +246,7 @@ export function stepPlayer(
     p.coyote = 0
     p.buffer = 0
     p.canCut = true
+    p.hasJumpedFromGround = true
     events.jumped = true
   }
   // Letting go of jump early makes a shorter hop

@@ -9,6 +9,7 @@ export type Screen = 'title' | 'worlds' | 'levels' | 'playing' | 'paused' | 'cle
 
 export interface UiActions {
   play(): void
+  characters(): void
   worlds(): void
   timeTrial(): void
   playWorld(): void
@@ -78,14 +79,19 @@ export class Ui {
   private readonly winBest = byId<HTMLElement>('win-best')
   private readonly touch = byId<HTMLElement>('touch')
   private readonly fadeLayer = byId<HTMLElement>('fade')
-  private readonly mapleHud = byId<HTMLElement>('maple-hud')
-  private readonly mapleLvl = byId<HTMLElement>('maple-lvl')
+  private readonly playerHud = byId<HTMLElement>('player-hud')
+  private readonly chatHud = byId<HTMLElement>('chat-hud')
+  private readonly hudClassIcon = byId<HTMLElement>('hud-class-icon')
+  private readonly hudLvl = byId<HTMLElement>('hud-lvl')
+  private readonly hudHeroName = byId<HTMLElement>('hud-hero-name')
+  private readonly hudClassTitle = byId<HTMLElement>('hud-class-title')
   private readonly hpFill = byId<HTMLElement>('hp-fill')
   private readonly hpText = byId<HTMLElement>('hp-text')
   private readonly mpFill = byId<HTMLElement>('mp-fill')
   private readonly mpText = byId<HTMLElement>('mp-text')
   private readonly countRed = byId<HTMLElement>('count-red')
   private readonly countBlue = byId<HTMLElement>('count-blue')
+  private readonly hudGold = byId<HTMLElement>('hud-gold')
   private readonly expFill = byId<HTMLElement>('exp-fill')
   private readonly expText = byId<HTMLElement>('exp-text')
   private screen: Screen = 'none'
@@ -112,6 +118,7 @@ export class Ui {
     byId('play-button').addEventListener('click', () => actions.play())
     byId('pause-button').addEventListener('click', () => actions.pause())
     const handlers: Record<string, () => void> = {
+      characters: guarded(actions.characters),
       worlds: guarded(actions.worlds),
       timeTrial: guarded(actions.timeTrial),
       playWorld: guarded(actions.playWorld),
@@ -177,7 +184,8 @@ export class Ui {
       element.hidden = !visible
     }
     this.hud.hidden = !(screen === 'playing' || screen === 'paused' || screen === 'clear')
-    this.mapleHud.hidden = !(screen === 'playing')
+    this.playerHud.hidden = !(screen === 'playing')
+    this.chatHud.hidden = !(screen === 'playing')
     if (screen !== 'playing') this.setHint(null)
     this.updateTouch()
     this.openedAt = performance.now()
@@ -329,7 +337,12 @@ export class Ui {
   }
 
   updateMaple(p: Player) {
-    this.mapleLvl.textContent = `Lv. ${p.level}`
+    this.hudLvl.textContent = `Lv. ${p.level}`
+    this.hudClassIcon.textContent = p.characterClass.icon
+    this.hudHeroName.textContent = p.characterClass.name
+    this.hudClassTitle.textContent = p.characterClass.title
+    this.hudGold.textContent = String(p.mesos)
+
     const hpPct = Math.max(0, Math.min(100, (p.hp / p.maxHp) * 100))
     this.hpFill.style.width = `${hpPct}%`
     this.hpText.textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`
@@ -343,7 +356,7 @@ export class Ui {
 
     const expPct = Math.max(0, Math.min(100, (p.exp / p.maxExp) * 100))
     this.expFill.style.width = `${expPct}%`
-    this.expText.textContent = `EXP ${expPct.toFixed(1)}%`
+    this.expText.textContent = `${expPct.toFixed(1)}%`
   }
 
   private bindTouch(input: Input) {

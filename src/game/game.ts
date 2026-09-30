@@ -17,6 +17,9 @@ import { type Controls, noControls } from '../sim/player.ts'
 import { MAX_FALL, PLAYER_HALF, STEP } from '../sim/tuning.ts'
 import { World } from '../sim/world.ts'
 import { type LevelResult, Ui } from '../ui/ui.ts'
+import { ChatUi } from '../ui/chatUi.ts'
+import { CharacterSelectUi } from '../ui/characterSelectUi.ts'
+import { getCharacterClass, loadSavedClass } from '../sim/classes.ts'
 import { prefs } from '../util/prefs.ts'
 
 type State = 'title' | 'worlds' | 'levels' | 'playing' | 'paused' | 'cleared' | 'won' | 'changing'
@@ -54,6 +57,8 @@ export class Game {
   private readonly backdrop: Backdrop
   private readonly mobsView = new MobsView()
   private readonly combatView: CombatView
+  private readonly chatUi: ChatUi
+  private readonly characterSelectUi: CharacterSelectUi
   private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
   private levelView: LevelView | null = null
   private world!: World
@@ -83,6 +88,7 @@ export class Game {
     this.ui = new Ui(
       {
         play: () => this.startRun(),
+        characters: () => this.showCharacterSelect(),
         worlds: () => this.showWorldSelect(),
         timeTrial: () => this.showLevelSelect(),
         playWorld: () => this.startRun(),
@@ -108,6 +114,64 @@ export class Game {
       this.input,
     )
     this.combatView = new CombatView(this.ui.app)
+
+    this.characterSelectUi = new CharacterSelectUi(loadSavedClass().id, {
+      onSelect: heroClass => {
+        if (this.world) {
+          this.world.player.characterClass = heroClass
+          this.playerView.setClass(heroClass)
+          this.ui.updateMaple(this.world.player)
+          this.chatUi.addSystemMessage(`Switched active hero to ${heroClass.name} (${heroClass.title}).`)
+        }
+      },
+      onClose: () => {
+        this.redraw = true
+      },
+    })
+
+    this.chatUi = new ChatUi({
+      onSendMessage: (channel, text) => {
+        const p = this.world?.player
+        const name = p?.characterClass.name ?? 'Hero'
+        const color = p?.characterClass.accentColor ?? '#58d3d0'
+        this.chatUi.addMessage(channel, name, text, color)
+        this.chatUi.showSpeechBubble(name, text, color)
+      },
+      onCommand: (cmd, args) => {
+        const p = this.world?.player
+        if (cmd === 'help') {
+          this.chatUi.addSystemMessage('Available commands: /class <name>, /roll, /heal, /clear, /help')
+        } else if (cmd === 'class' || cmd === 'switch') {
+          const target = args[0]?.toLowerCase()
+          if (!target) {
+            this.showCharacterSelect()
+          } else {
+            const cls = getCharacterClass(target)
+            if (cls && p) {
+              p.characterClass = cls
+              this.playerView.setClass(cls)
+              this.ui.updateMaple(p)
+              this.characterSelectUi.render(cls.id)
+              this.chatUi.addSystemMessage(`Switched character to ${cls.name} (${cls.title})!`)
+            }
+          }
+        } else if (cmd === 'roll') {
+          const roll = Math.floor(Math.random() * 100) + 1
+          const name = p?.characterClass.name ?? 'Hero'
+          this.chatUi.addMessage('local', name, `rolled ${roll} (1-100)`, '#facc15')
+        } else if (cmd === 'heal') {
+          if (p) {
+            p.hp = p.maxHp
+            p.mp = p.maxMp
+            this.ui.updateMaple(p)
+            this.chatUi.addSystemMessage('HP and MP fully restored!')
+          }
+        } else if (cmd === 'clear') {
+          this.chatUi.clear()
+        }
+      },
+    })
+    this.chatUi.attachInput(this.input)
     this.stage.scene.add(
       this.particles.mesh,
       this.race.view.group,
@@ -365,6 +429,7 @@ export class Game {
     this.levelView?.update(this.clock, this.world, this.motion)
     this.mobsView.update(this.world.mobManager, this.clock, dt)
     this.combatView.update(this.world.mobManager, this.world.player, this.stage, dt)
+    this.chatUi.updateBubblePosition(this.stage.camera, window.innerWidth, window.innerHeight, x, y)
     this.particles.update(dt)
     this.stage.render()
   }
@@ -373,6 +438,7 @@ export class Game {
     this.levelView?.dispose()
     this.combatView.clear()
     this.world = new World(level)
+    this.playerView.setClass(this.world.player.characterClass)
     this.levelView = new LevelView(level)
     this.stage.scene.add(this.levelView.group)
     // Compile every material now, behind the fade, rather than the first time each one
@@ -388,6 +454,10 @@ export class Game {
     this.replay = null
     this.input.clear()
     this.redraw = true
+  }
+
+  private showCharacterSelect() {
+    this.characterSelectUi.open(this.world?.player?.characterClass.id)
   }
 
   private loadTitle() {

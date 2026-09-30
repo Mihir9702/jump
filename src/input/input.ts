@@ -53,6 +53,18 @@ export class Input {
   private readonly touch = none()
   private pad: PadState = { ...none(), up: false, a: false, b: false, start: false }
   private readonly queue = new Set<Action>()
+  private typing = false
+
+  setTyping(typing: boolean) {
+    this.typing = typing
+    if (typing) {
+      this.releaseAll()
+    }
+  }
+
+  isTyping(): boolean {
+    return this.typing
+  }
 
   constructor() {
     window.addEventListener('keydown', this.onKeyDown)
@@ -117,9 +129,9 @@ export class Input {
 
   private readonly onKeyDown = (event: KeyboardEvent) => {
     if (event.metaKey || event.altKey) return
-    const code = event.code
-    // Focused buttons and links handle Enter and Space themselves
     const target = event.target
+    if (this.typing || target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return
+    const code = event.code
     const control = target instanceof HTMLButtonElement || target instanceof HTMLAnchorElement
     if (control && (code === 'Enter' || code === 'NumpadEnter' || code === 'Space')) return
 

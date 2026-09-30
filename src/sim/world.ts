@@ -120,8 +120,8 @@ export class World {
   // back. The clock keeps running.
   respawn() {
     const from = this.restartPoint
-    const { level, exp, maxExp, str, dex, int, luk, ap, mesos, redPotions, bluePotions, maxHp, maxMp } = this.player
-    this.player = createPlayer(from.x, from.y)
+    const { characterClass, level, exp, maxExp, str, dex, int, luk, ap, mesos, redPotions, bluePotions, maxHp, maxMp } = this.player
+    this.player = createPlayer(from.x, from.y, characterClass)
     this.player.level = level
     this.player.exp = exp
     this.player.maxExp = maxExp
