@@ -13,10 +13,10 @@ import {
 } from 'three'
 import { palette } from './palette.ts'
 
-// A low field of view keeps the side-on view close to flat while the blocks still show
-// their sides and tops. The camera looks down a little so platform tops are visible.
-export const FOV = 24
-export const PITCH = 5
+// An elevated 3D diorama pitch (19°) gives the characteristic Super Mario 3D Land
+// depth, revealing platform tops, checkerboard depth, and clear contact shadows.
+export const FOV = 26
+export const PITCH = 19
 
 // What the camera has to fit at the gameplay plane (z = 0), in tiles. Portrait screens
 // fit a narrower width so the world does not shrink to a strip.
@@ -32,7 +32,7 @@ export interface StageOptions {
   adaptive: boolean
 }
 
-const SUN_DIRECTION = new Vector3(-0.42, 0.82, 0.55).normalize()
+const SUN_DIRECTION = new Vector3(-0.35, 0.88, 0.32).normalize()
 const up = new Vector3(0, 1, 0)
 
 export class Stage {

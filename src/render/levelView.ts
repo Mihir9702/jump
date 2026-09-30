@@ -83,8 +83,9 @@ export class LevelView {
     this.level = level
     const random = createRandom(hashString(level.name))
     const box = this.track(new BoxGeometry(1, 1, 1))
-    const terrain = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.92 }))
-    const decor = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.85, flatShading: true }))
+    // Smooth satin toy finish like Super Mario 3D Land blocks
+    const terrain = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.54 }))
+    const decor = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.46, flatShading: true }))
 
     const dirt: Instance[] = []
     const grass: Instance[] = []
@@ -109,27 +110,27 @@ export class LevelView {
     )
     if (letters.length) {
       const block = this.track(new RoundedBoxGeometry(0.96, 0.96, LETTER_DEPTH, 2, 0.08))
-      const material = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.7 }))
+      const material = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.5 }))
       this.group.add(instanced(block, material, letters, { cast: true, receive: true }))
     }
     if (spikes.length) {
       const cone = this.track(new ConeGeometry(0.15, 0.5, 5))
       cone.translate(0, 0.25, 0)
-      const material = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.6, flatShading: true }))
+      const material = this.trackMaterial(new MeshStandardMaterial({ roughness: 0.45, flatShading: true }))
       this.group.add(instanced(cone, material, spikes, { cast: true, receive: true }))
     }
 
     this.coinPopped = level.coins.map(() => -1)
     if (level.coins.length) {
-      const coin = this.track(new CylinderGeometry(0.3, 0.3, 0.1, 10))
+      const coin = this.track(new CylinderGeometry(0.32, 0.32, 0.12, 16))
       coin.rotateX(Math.PI / 2)
       const material = this.trackMaterial(
         new MeshStandardMaterial({
           color: palette.coin,
           emissive: palette.coin,
-          emissiveIntensity: 0.28,
-          roughness: 0.4,
-          metalness: 0.15,
+          emissiveIntensity: 0.32,
+          roughness: 0.24,
+          metalness: 0.72,
           flatShading: true,
         }),
       )
@@ -168,10 +169,8 @@ export class LevelView {
       for (let col = 0; col <= level.width; col++) {
         const solid = col < level.width && tileAt(level, col, row) === Tile.Solid
         if (solid) {
-          const left = tileAt(level, col - 1, row) === Tile.Solid
-          const right = tileAt(level, col + 1, row) === Tile.Solid
-          // Blocks show their front face; the ends of a run also show their sides
-          const depths = left && right ? [1] : [-1, 0, 1]
+          // Fill all 3 depth slices so platforms are solid 3D cubes with checkerboard pattern
+          const depths = [-1, 0, 1]
           for (const zi of depths) {
             const deep = (col + row + zi) % 2 === 0
             dirt.push({
@@ -186,16 +185,16 @@ export class LevelView {
         if (exposed && runStart < 0) runStart = col
         if (!exposed && runStart >= 0) {
           const end = col - 1
-          const overhangLeft = tileAt(level, runStart - 1, row) === Tile.Solid ? 0 : 0.07
-          const overhangRight = tileAt(level, end + 1, row) === Tile.Solid ? 0 : 0.07
+          const overhangLeft = tileAt(level, runStart - 1, row) === Tile.Solid ? 0 : 0.08
+          const overhangRight = tileAt(level, end + 1, row) === Tile.Solid ? 0 : 0.08
           const x0 = runStart - overhangLeft
           const x1 = end + 1 + overhangRight
           grass.push({
-            position: v((x0 + x1) / 2, row + 1 - 0.07, 0),
-            scale: v(x1 - x0, 0.26, SOLID_DEPTH + 0.14),
+            position: v((x0 + x1) / 2, row + 1 - 0.06, 0),
+            scale: v(x1 - x0, 0.28, SOLID_DEPTH + 0.18),
             color: tint(random, palette.grass, 0.02),
           })
-          for (let c = runStart; c <= end; c++) this.fringe(random, grass, c, row + 1 - 0.2, half + 0.07)
+          for (let c = runStart; c <= end; c++) this.fringe(random, grass, c, row + 1 - 0.2, half + 0.08)
           runStart = -1
         }
       }
@@ -223,25 +222,26 @@ export class LevelView {
       for (let col = 0; col <= level.width; col++) {
         const oneWay = col < level.width && tileAt(level, col, row) === Tile.OneWay
         if (oneWay) {
-          for (const zi of [-0.5, 0.5]) {
-            const deep = (col + Math.floor(zi + 1)) % 2 === 0
+          // Chunky floating platform underside with 3D depth
+          for (const zi of [-0.65, 0, 0.65]) {
+            const deep = (col + Math.floor(zi * 2 + 2)) % 2 === 0
             dirt.push({
-              position: v(col + 0.5, row + 1 - 0.26, zi),
-              scale: v(1, 0.24, 1),
+              position: v(col + 0.5, row + 1 - 0.28, zi),
+              scale: v(1, 0.3, 0.65),
               color: tint(random, deep ? palette.dirtDeep : palette.dirt, 0.025),
             })
           }
         }
         if (oneWay && runStart < 0) runStart = col
         if (!oneWay && runStart >= 0) {
-          const x0 = runStart - 0.05
-          const x1 = col + 0.05
+          const x0 = runStart - 0.06
+          const x1 = col + 0.06
           grass.push({
             position: v((x0 + x1) / 2, row + 1 - 0.05, 0),
-            scale: v(x1 - x0, 0.18, ONE_WAY_DEPTH + 0.1),
+            scale: v(x1 - x0, 0.22, ONE_WAY_DEPTH + 0.22),
             color: tint(random, palette.grass, 0.02),
           })
-          for (let c = runStart; c < col; c++) this.fringe(random, grass, c, row + 1 - 0.14, ONE_WAY_DEPTH / 2 + 0.06)
+          for (let c = runStart; c < col; c++) this.fringe(random, grass, c, row + 1 - 0.16, ONE_WAY_DEPTH / 2 + 0.1)
           runStart = -1
         }
       }

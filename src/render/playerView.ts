@@ -30,18 +30,26 @@ export class PlayerView {
   private lean = 0
   private appearedAt = -1
   private readonly geometries = [
-    new RoundedBoxGeometry(PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE, 3, 0.1),
-    new BoxGeometry(0.1, 0.2, 0.04),
+    new RoundedBoxGeometry(PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE, 3, 0.12),
+    new BoxGeometry(0.11, 0.22, 0.04),
+    new BoxGeometry(0.045, 0.08, 0.045),
   ]
   private readonly materials = [
-    // A little glow of its own keeps the cube the bright cyan of 2022 in shade too
-    new MeshStandardMaterial({ color: palette.player, emissive: palette.player, emissiveIntensity: 0.22, roughness: 0.45 }),
+    // Bright, smooth Mario toy-finish with subtle specular sheen
+    new MeshStandardMaterial({
+      color: palette.player,
+      emissive: palette.player,
+      emissiveIntensity: 0.16,
+      roughness: 0.28,
+      metalness: 0.05,
+    }),
     new MeshBasicMaterial({ color: palette.eye }),
+    new MeshBasicMaterial({ color: '#ffffff' }),
   ]
 
   constructor() {
-    const [cube, eye] = this.geometries as [RoundedBoxGeometry, BoxGeometry]
-    const [skin, ink] = this.materials as [MeshStandardMaterial, MeshBasicMaterial]
+    const [cube, eye, catchlight] = this.geometries as [RoundedBoxGeometry, BoxGeometry, BoxGeometry]
+    const [skin, ink, shine] = this.materials as [MeshStandardMaterial, MeshBasicMaterial, MeshBasicMaterial]
     this.body = new Group()
     const mesh = new Mesh(cube, skin)
     mesh.position.y = PLAYER_SIZE / 2
@@ -52,7 +60,9 @@ export class PlayerView {
     for (const x of [-0.13, 0.13]) {
       const e = new Mesh(eye, ink)
       e.position.x = x
-      this.eyes.add(e)
+      const pupil = new Mesh(catchlight, shine)
+      pupil.position.set(x + 0.025, 0.05, 0.01)
+      this.eyes.add(e, pupil)
     }
     this.body.add(mesh, this.eyes)
     this.group.add(this.body)
