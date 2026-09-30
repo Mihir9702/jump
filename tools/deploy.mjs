@@ -19,7 +19,7 @@ if (read(['status', '--porcelain'])) {
 const commit = read(['rev-parse', '--short', 'HEAD'])
 const remote = read(['remote', 'get-url', 'origin'])
 
-npm('test')
+npm('run', 'typecheck')
 npm('run', 'build')
 
 const dist = 'dist'

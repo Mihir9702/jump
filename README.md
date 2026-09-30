@@ -1,163 +1,81 @@
-# Jump
+# Jump — 2.5D Action MMORPG Platformer
 
-A small 2.5D platformer about a cyan cube crossing a sunset valley. Built with Three.js,
-TypeScript and Vite.
+A fast, fluid 2.5D action platformer and interconnected MMORPG built with Three.js, TypeScript, and Vite.
 
-![The title screen: the word JUMP built from grass-topped blocks above a valley at sunset](docs/screenshots/title.png)
+🎮 **[Play Live in Browser (Zero Install)](https://mihir9702.github.io/jump/)**
 
-Play it at <https://mihir9702.github.io/jump/>. The 2022 original is preserved on the
-`archive/v1` branch and is not deployed.
+---
+
+## What is Jump?
+
+*Jump* blends the precision parkour of modern platformers with the nostalgic combat and progression of classic *MapleStory*, featuring:
+
+* **12 Distinct Playable Classes**: Each with their own combat archetype, weapons, mobility, and stat affinities.
+* **MapleStory-Inspired Combat**: Real-time melee slash combos, critical strikes, floating bouncing damage numbers, and dynamic loot drops (Mesos & Potions) with vacuum pickup.
+* **Interconnected MMORPG World**: Persistent zones connected by glowing **Runed Portals**—from the peaceful starter town hub of **Sunset Haven** to the grinding fields of **Whispering Meadows** and the depths of **Sunken Hollows**.
+* **Town Hubs & Safe Zones**: Visit merchants to stock up on potions, upgrade equipment at the blacksmith, and accept quest bounties.
+* **High-Mobility Flash Jump**: Double-tap jump while airborne to surge forward with starlight momentum.
+* **Web-First & Zero Downloads**: Runs instantly in any modern desktop or mobile browser at 60 FPS.
+
+---
+
+## The 12 Playable Heroes
+
+| Hero | Archetype | Signature Weapon | Mobility Ability |
+|---|---|---|---|
+| **Vesper** | Starlight Nomad | Dual Phase Daggers | **Temporal Warp**: Forward dash leaving a time-distorting afterimage |
+| **Atlas** | Celestial Gyro | Kinetic Crystal Rings | **Anti-Grav Burst**: Omnidirectional 8-way momentum glide |
+| **Ren** | Shadow Strider | Shadow Phase Katana | **Shadow Leap**: Blinks forward through enemy hitboxes as smoke |
+| **Gideon** | Void Knight | Astral Claymore | **Comet Slam**: Heavy downward aerial plunge with shockwave impact |
+| **Iris** | Living Prism | Refractive Light Beams | **Prism Shift**: Splits into refracted light rays before reforming forward |
+| **Jin** | Driftwood Ronin | Weathered Odachi | **Talisman Step**: Spawns a floating spirit talisman stepping stone |
+| **Kallum** | Abyssal Sovereign | Dark Matter Scythe | **Umbral Surge**: Rifts forward in purple flames with execute damage |
+| **Valeria** | Cyber-Valkyrie | Photon Lance & Hex Shield | **Photon Glide**: Unfurls hard-light wings for high-speed thrust |
+| **Tor** | Molten Shaman | Molten Core Staff | **Magma Propulsion**: Rocket hops upward on volcanic geyser steam |
+| **Mei** | Ribbon Dancer | Razor Silk Ribbons | **Silk Vault**: Aerial flip swinging ribbons in a 360° defensive sphere |
+| **Rai** | Thunder Monk | Electric Spark Tonfas | **Lightning Strike**: Instant zig-zag electric flash jump |
+| **Rowan** | Horned Warden | Living Thorn Rapier | **Vine Grapple**: Snaps a bioluminescent vine to swing across chasms |
+
+---
 
 ## Controls
 
-| Action                      | Keyboard              | Gamepad              | Touch          |
-| --------------------------- | --------------------- | -------------------- | -------------- |
-| Move                        | A D or ← →            | Left stick or d-pad  | ◀ ▶ buttons    |
-| Jump (hold to jump higher)  | W, Space or ↑         | A                    | ▲ button       |
-| Drop through thin platforms | S or ↓                | Down                 | ▼ button       |
-| Pause and resume            | Esc or P              | Start (B resumes)    | Pause button   |
-| Restart the level           | R                     | Pause menu           | Pause menu     |
-| Sound on or off             | M                     | Pause menu           | Title or pause |
-| Start from the title        | Enter                 | Start                | Play button    |
+| Action | Keyboard | Touch / Mobile | Gamepad |
+|---|---|---|---|
+| **Move** | <kbd>A</kbd> <kbd>D</kbd> or <kbd>←</kbd> <kbd>→</kbd> | Left / Right D-Pad | Left Stick / D-Pad |
+| **Jump / Flash Jump** | <kbd>W</kbd>, <kbd>Space</kbd> or <kbd>↑</kbd> *(double tap in air)* | Jump Button | <kbd>A</kbd> |
+| **Attack** | <kbd>Ctrl</kbd>, <kbd>J</kbd>, or <kbd>Z</kbd> | Attack Button | <kbd>X</kbd> |
+| **Use HP Potion** | <kbd>1</kbd> | Tap Red Potion Slot | <kbd>LB</kbd> |
+| **Use MP Potion** | <kbd>2</kbd> | Tap Blue Potion Slot | <kbd>RB</kbd> |
+| **Drop Through Platform** | <kbd>S</kbd> or <kbd>↓</kbd> | Down Button | Down |
+| **Enter Portal / Interact** | <kbd>W</kbd> or <kbd>↑</kbd> | Jump Button | <kbd>A</kbd> |
+| **Pause** | <kbd>Esc</kbd> or <kbd>P</kbd> | Pause Icon | Start |
 
-The title screen is a playground: the letters are jump-through platforms, so you can try
-the controls before starting. Touch buttons appear on touch screens, and on-screen hints
-follow whichever input you used last.
+---
 
-## How it plays
+## Development
 
-Three short levels, played in order: Meadow, Ridge and Sunset Peak. Collect coins, avoid
-spikes and reach the flag. Falling off restarts you at once, at the last checkpoint you
-touched. Coins picked up since that checkpoint go back. The clock keeps running through
-falls and stops while paused. The results screen shows your time, coins and falls for
-each level, and the browser remembers your fastest full run.
+You need **Node.js 22.18+**.
 
-The movement is the feel from the playable hero on the portfolio site: acceleration and
-friction, variable jump height (let go early for a short hop), coyote time (a moment to
-jump after running off a ledge), jump buffering (press jump just before landing),
-one-way platforms you can jump up through and drop down from, and squash and stretch.
-
-## Run it
-
-You need Node.js 22.18 or newer (24 recommended).
-
-```sh
+```bash
+# Install dependencies
 npm install
-npm run dev        # http://localhost:5173/jump/
-npm test           # physics tests, and a solver that proves every level can be finished
-npm run build      # type-checks, then builds the static site into dist/
-npm run preview    # serves dist/ at http://localhost:4173/jump/
+
+# Run local development server
+npm run dev
+
+# Type-check TypeScript
+npm run typecheck
+
+# Build for production
+npm run build
+
+# Deploy to GitHub Pages (gh-pages)
+npm run deploy
 ```
 
-`npm run playtest` plays the built game in headless Chrome (run `npm run build` first). It
-drives the real game with key presses, touch and a stand-in gamepad, finishes every level,
-checks resizing, high-DPI screens, reduced motion and the console, and saves screenshots to
-`.playtest/`. Use `npm run playtest -- --out docs/screenshots` to refresh the images in this
-README. Set `CHROME_PATH` if Chrome is not installed in the default Windows location.
+---
 
-Adding `?debug` to the address exposes `window.__jump` for tests: the current state, a
-teleport, and a way to start a level or replay a recorded route.
+## License
 
-## Deploy
-
-`npm run build` produces a static site in `dist/` for GitHub Pages under `/jump/` (set by
-`base` in `vite.config.ts`).
-
-`npm run deploy` runs the tests, builds, and force-pushes `dist/` to the `gh-pages` branch.
-GitHub Pages serves that branch (Settings > Pages > Build and deployment > Source: **Deploy
-from a branch**, `gh-pages`, `/ (root)`). It only needs ordinary push access to this
-repository, with no GitHub Actions workflow. It refuses to run with uncommitted changes, so
-the live site always matches a commit.
-
-Shared links show `public/og.png`, a 1200×630 capture of the title scene without the menu.
-The preview tags in `index.html` use absolute URLs, so update them if the address changes.
-
-## What's new in v2.1
-
-- The original three stages are now **World I — Sunset Valley**, with World Select and
-  Level Select for full runs or individual time trials.
-- Each level remembers its fastest time, most coins, fewest falls and Bronze/Silver/Gold
-  medal. Medal thresholds are provisional until they are calibrated with human runs.
-- A new personal best stores the exact 120 Hz control stream and races it back as a
-  translucent ghost using a second, isolated instance of the real game `World`.
-- Ghosts cannot affect the live player's coins, checkpoints, deaths or goal state, and can
-  be toggled from the title or pause screen.
-- Saved ghosts carry a level revision, so an edited course never replays an incompatible
-  record against different geometry.
-- Checkpoints briefly show the player's delta against the saved PB split.
-- Progress is versioned in browser storage and migrates the old full-run PB into the Sunset
-  Valley world record.
-- The v2.0 simulation, physics, input and existing render systems are unchanged. v2.1 is
-  layered through new `worlds`, `replay` and `progress` modules plus thin game/UI adapters.
-- The browser playtest keeps all original v2.0 checks and adds coverage for selectors,
-  persisted PB ghosts, ghost isolation/toggling and slower-run PB protection.
-
-## What's new in v2
-
-- Rebuilt in Three.js, TypeScript and Vite. The world is now 2.5D: voxel blocks with real
-  depth, a low-angle camera, soft sunlight with shadows, light fog, and four parallax
-  layers of mountains, forest and hills behind the level. The cube is still cyan, now with
-  eyes that look where it is going.
-- A new movement feel with acceleration, variable jump height, coyote time, jump buffering
-  and one-way platforms. The simulation runs at a fixed 120 steps a second with smooth,
-  interpolated rendering.
-- Three hand-made levels instead of one, with coins, spikes, checkpoints and a goal flag.
-- Title, pause, level complete and results screens, with time and coins for every level.
-- Gamepad and touch controls alongside the keyboard.
-- Instant restarts when you fall, instead of pressing R on a game over screen.
-- Pauses when you switch tabs, respects reduced-motion settings (steadier camera, fewer
-  particles), and adapts to window size and screen density.
-- Sound effects generated in the browser. There are no audio files, and nothing plays until
-  you press a key or tap.
-- The 2022 version is preserved on the `archive/v1` branch.
-
-## How it is built
-
-```
-src/
-  sim/        Game rules with no rendering: level parsing, player physics, world
-  levels/     The levels as JSON maps, and the order they are played in
-  render/     Three.js: stage (camera, light, fog), backdrop, level blocks, player, particles
-  input/      Keyboard, gamepad and touch, merged into one set of buttons
-  ui/         Screens, HUD and hints, and the block lettering used for headings
-  audio/      Synthesized sound effects
-  game/       The loop, the screens flow and level progression
-test/         Physics and level tests (node --test)
-tools/        solver.ts finds routes through levels; playtest.mjs drives headless Chrome
-```
-
-The simulation in `src/sim` has no Three.js or browser dependencies, which is why the tests
-and the level solver can run it directly on Node.
-
-### Making levels
-
-Levels are ASCII maps in `src/levels/*.json`. Rows run top to bottom, and each character is
-one tile:
-
-| Symbol    | Meaning                                                   |
-| --------- | --------------------------------------------------------- |
-| space `.` | Empty                                                     |
-| `#`       | Solid ground                                              |
-| `=`       | One-way platform: jump up through it, press down to drop  |
-| `o`       | Coin                                                      |
-| `P`       | Player start                                              |
-| `F`       | Goal flag                                                 |
-| `C`       | Checkpoint                                                |
-| `^` `v`   | Spikes on a floor, or hanging from a ceiling              |
-| `L`       | Letter block (title screen only)                          |
-
-A level can also list `hints`: a column and one of `through`, `hold` or `drop`, which shows
-a short tip while the player is nearby. Run `npm test` after editing a map. It fails if a
-level cannot be finished, or a coin cannot be reached, with the real physics.
-
-## Credits
-
-Everything in v2 is original to this project. The blocks, scenery and effects are built
-from geometry in code, the sounds are synthesized, and the block lettering is drawn in
-code. There are no font files: the interface uses your system font. The 2022 version is preserved separately on the `archive/v1` branch.
-
-## Copyright and reuse
-
-Jump is source-visible, but the project is **not released under an open-source license**. The current game's code, levels, original visuals, screenshots, documentation and identity are reserved. See [COPYRIGHT.md](COPYRIGHT.md).
-
-Dependencies such as Three.js keep their own upstream licenses. The preserved `archive/v1` branch contains two legacy image assets with undocumented provenance; they are retained only as part of the historical branch and are not licensed for reuse by this project.
+Private / MIT
