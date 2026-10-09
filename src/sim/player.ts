@@ -26,10 +26,6 @@ export interface Controls {
   // Edges: true only on the step after the button went down
   jumpPressed: boolean
   downPressed: boolean
-  attackPressed?: boolean
-  skillPressed?: boolean
-  potionHpPressed?: boolean
-  potionMpPressed?: boolean
 }
 
 export const Support = { None: 0, Solid: 1, OneWay: 2 } as const
@@ -53,27 +49,8 @@ export interface Player {
   dropUntil: number
   canCut: boolean
   clock: number
-  // MapleStory RPG & Combat
+  // A saved appearance choice, not a combat class
   characterClass: CharacterClass
-  hp: number
-  maxHp: number
-  mp: number
-  maxMp: number
-  level: number
-  exp: number
-  maxExp: number
-  str: number
-  dex: number
-  int: number
-  luk: number
-  ap: number
-  mesos: number
-  redPotions: number
-  bluePotions: number
-  attacking: boolean
-  attackTimer: number
-  attackHitbox: { x: number; y: number; width: number; height: number } | null
-  invincibleUntil: number
   doubleJumpAvailable: boolean
   hasJumpedFromGround: boolean
   dashTimer: number
@@ -86,9 +63,7 @@ export interface StepEvents {
   landed: number
   dropped: boolean
   bonked: boolean
-  attacked: boolean
   flashJumped: boolean
-  levelUp: boolean
 }
 
 export const noControls = (): Controls => ({
@@ -97,8 +72,6 @@ export const noControls = (): Controls => ({
   jumpHeld: false,
   jumpPressed: false,
   downPressed: false,
-  attackPressed: false,
-  skillPressed: false,
 })
 
 export const createStepEvents = (): StepEvents => ({
@@ -106,9 +79,7 @@ export const createStepEvents = (): StepEvents => ({
   landed: 0,
   dropped: false,
   bonked: false,
-  attacked: false,
   flashJumped: false,
-  levelUp: false,
 })
 
 export function createPlayer(x: number, y: number, heroClass: CharacterClass = loadSavedClass()): Player {
@@ -127,25 +98,6 @@ export function createPlayer(x: number, y: number, heroClass: CharacterClass = l
     canCut: false,
     clock: 0,
     characterClass: heroClass,
-    hp: heroClass.stats.hp,
-    maxHp: heroClass.stats.hp,
-    mp: heroClass.stats.mp,
-    maxMp: heroClass.stats.mp,
-    level: 1,
-    exp: 0,
-    maxExp: 100,
-    str: heroClass.stats.str,
-    dex: heroClass.stats.dex,
-    int: heroClass.stats.int,
-    luk: heroClass.stats.luk,
-    ap: 0,
-    mesos: 0,
-    redPotions: 3,
-    bluePotions: 2,
-    attacking: false,
-    attackTimer: 0,
-    attackHitbox: null,
-    invincibleUntil: 0,
     doubleJumpAvailable: true,
     hasJumpedFromGround: false,
     dashTimer: 0,
@@ -166,40 +118,6 @@ export function stepPlayer(
 ): void {
   p.clock += dt
 
-  // Attack timer cooldown
-  if (p.attackTimer > 0) {
-    p.attackTimer -= dt
-    if (p.attackTimer <= 0) {
-      p.attacking = false
-      p.attackHitbox = null
-    }
-  }
-
-  // Basic Attack
-  if (input.attackPressed && p.attackTimer <= 0) {
-    p.attacking = true
-    p.attackTimer = 0.22
-    const hbWidth = 1.6
-    const hbHeight = 1.3
-    p.attackHitbox = {
-      x: p.facing > 0 ? p.x + 0.1 : p.x - hbWidth - 0.1,
-      y: p.y,
-      width: hbWidth,
-      height: hbHeight,
-    }
-    events.attacked = true
-  }
-
-  // Potion usage
-  if (input.potionHpPressed && p.redPotions > 0 && p.hp < p.maxHp) {
-    p.redPotions--
-    p.hp = Math.min(p.maxHp, p.hp + 50)
-  }
-  if (input.potionMpPressed && p.bluePotions > 0 && p.mp < p.maxMp) {
-    p.bluePotions--
-    p.mp = Math.min(p.maxMp, p.mp + 40)
-  }
-
   const direction = (input.right ? 1 : 0) - (input.left ? 1 : 0)
   if (direction !== 0) {
     const accel = p.grounded ? GROUND_ACCEL : AIR_ACCEL
@@ -218,19 +136,17 @@ export function stepPlayer(
   if (input.jumpPressed) p.buffer = JUMP_BUFFER
   if (input.downPressed) p.dropBuffer = DROP_BUFFER
 
-  // Iconic MapleStory Flash Jump (double jump while airborne after jumping from ground)
+  // A second jump in mid-air, once per takeoff (no mana dependency)
   if (
     input.jumpPressed &&
     !p.grounded &&
     p.coyote <= 0 &&
     p.hasJumpedFromGround &&
     p.doubleJumpAvailable &&
-    p.vy > -2 &&
-    p.mp >= 5
+    p.vy > -2
   ) {
     p.doubleJumpAvailable = false
     p.hasJumpedFromGround = false
-    p.mp -= 5
     p.vx = p.facing * RUN_SPEED * 1.65
     p.vy = Math.max(p.vy, JUMP_SPEED * 0.45)
     p.canCut = false

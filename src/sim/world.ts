@@ -9,7 +9,6 @@ import {
 } from './player.ts'
 import { FALL_LIMIT, PLAYER_HALF, PLAYER_SIZE } from './tuning.ts'
 
-import { MobManager } from './mobs/mobWorld.ts'
 
 export interface WorldEvents extends StepEvents {
   // Indices into level.coins picked up this step
@@ -18,8 +17,6 @@ export interface WorldEvents extends StepEvents {
   checkpoint: number
   died: boolean
   goal: boolean
-  mobHit: boolean
-  playerHurt: boolean
 }
 
 // Spikes are a little smaller than their tile so near misses stay near misses
@@ -91,15 +88,12 @@ export class World {
   checkpoint = -1
   // Coins that stay collected after a fall: the ones picked up before the last checkpoint
   private banked: boolean[]
-  readonly mobManager = new MobManager()
   readonly events: WorldEvents = {
     ...createStepEvents(),
     coins: [],
     checkpoint: -1,
     died: false,
     goal: false,
-    mobHit: false,
-    playerHurt: false,
   }
 
   constructor(level: Level) {
@@ -107,9 +101,6 @@ export class World {
     this.player = createPlayer(level.spawn.x, level.spawn.y)
     this.collected = level.coins.map(() => false)
     this.banked = [...this.collected]
-    if (level.kind !== 'title') {
-      this.mobManager.initForLevel(level)
-    }
   }
 
   get restartPoint(): Point {
@@ -120,23 +111,8 @@ export class World {
   // back. The clock keeps running.
   respawn() {
     const from = this.restartPoint
-    const { characterClass, level, exp, maxExp, str, dex, int, luk, ap, mesos, redPotions, bluePotions, maxHp, maxMp } = this.player
+    const { characterClass } = this.player
     this.player = createPlayer(from.x, from.y, characterClass)
-    this.player.level = level
-    this.player.exp = exp
-    this.player.maxExp = maxExp
-    this.player.str = str
-    this.player.dex = dex
-    this.player.int = int
-    this.player.luk = luk
-    this.player.ap = ap
-    this.player.mesos = mesos
-    this.player.redPotions = redPotions
-    this.player.bluePotions = bluePotions
-    this.player.maxHp = maxHp
-    this.player.hp = maxHp
-    this.player.maxMp = maxMp
-    this.player.mp = maxMp
     this.collected = [...this.banked]
     this.coinCount = this.collected.filter(Boolean).length
     this.falls += 1
@@ -148,45 +124,15 @@ export class World {
     events.landed = 0
     events.dropped = false
     events.bonked = false
-    events.attacked = false
     events.flashJumped = false
-    events.levelUp = false
     events.coins.length = 0
     events.checkpoint = -1
     events.died = false
     events.goal = false
-    events.mobHit = false
-    events.playerHurt = false
 
     if (!this.finished) this.time += dt
     const p = this.player
     stepPlayer(p, input, this.level, dt, events)
-
-    // Step MapleStory mobs, attacks, and loot
-    if (this.level.kind !== 'title') {
-      const outcome = this.mobManager.step(this.level, p, dt)
-      if (outcome.mobHit) events.mobHit = true
-      if (outcome.playerHurt > 0) events.playerHurt = true
-      if (outcome.expEarned > 0) {
-        p.exp += outcome.expEarned
-        while (p.exp >= p.maxExp) {
-          p.level++
-          p.exp -= p.maxExp
-          p.maxExp = Math.floor(p.maxExp * 1.5)
-          p.str += 2
-          p.dex += 1
-          p.luk += 1
-          p.maxHp += 20
-          p.hp = p.maxHp
-          p.maxMp += 10
-          p.mp = p.maxMp
-          events.levelUp = true
-        }
-      }
-      if (outcome.mesosEarned > 0) {
-        this.coinCount += Math.floor(outcome.mesosEarned / 10)
-      }
-    }
 
     this.level.coins.forEach((coin, i) => {
       if (this.collected[i] || !touchesCoin(p, coin)) return
@@ -207,7 +153,7 @@ export class World {
       events.goal = true
     }
 
-    events.died = isDead(this.level, p) || p.hp <= 0
+    events.died = isDead(this.level, p)
     return events
   }
 }

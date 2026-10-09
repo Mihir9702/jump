@@ -7,8 +7,6 @@ import { RunSession } from './runSession.ts'
 import { Backdrop } from '../render/backdrop.ts'
 import { CameraRig } from '../render/cameraRig.ts'
 import { LevelView } from '../render/levelView.ts'
-import { CombatView } from '../render/combatView.ts'
-import { MobsView } from '../render/mobsView.ts'
 import { Particles } from '../render/particles.ts'
 import { PlayerView } from '../render/playerView.ts'
 import { type Framing, Stage } from '../render/stage.ts'
@@ -17,9 +15,8 @@ import { type Controls, noControls } from '../sim/player.ts'
 import { MAX_FALL, PLAYER_HALF, STEP } from '../sim/tuning.ts'
 import { World } from '../sim/world.ts'
 import { type LevelResult, Ui } from '../ui/ui.ts'
-import { ChatUi } from '../ui/chatUi.ts'
 import { CharacterSelectUi } from '../ui/characterSelectUi.ts'
-import { getCharacterClass, loadSavedClass } from '../sim/classes.ts'
+import { loadSavedClass } from '../sim/classes.ts'
 import { prefs } from '../util/prefs.ts'
 
 type State = 'title' | 'worlds' | 'levels' | 'playing' | 'paused' | 'cleared' | 'won' | 'changing'
@@ -55,9 +52,6 @@ export class Game {
   private readonly race = new GhostRace()
   private readonly session = new RunSession()
   private readonly backdrop: Backdrop
-  private readonly mobsView = new MobsView()
-  private readonly combatView: CombatView
-  private readonly chatUi: ChatUi
   private readonly characterSelectUi: CharacterSelectUi
   private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
   private levelView: LevelView | null = null
@@ -113,15 +107,13 @@ export class Game {
       },
       this.input,
     )
-    this.combatView = new CombatView(this.ui.app)
 
     this.characterSelectUi = new CharacterSelectUi(loadSavedClass().id, {
       onSelect: heroClass => {
         if (this.world) {
           this.world.player.characterClass = heroClass
           this.playerView.setClass(heroClass)
-          this.ui.updateMaple(this.world.player)
-          this.chatUi.addSystemMessage(`Switched active hero to ${heroClass.name} (${heroClass.title}).`)
+          this.redraw = true
         }
       },
       onClose: () => {
@@ -129,55 +121,10 @@ export class Game {
       },
     })
 
-    this.chatUi = new ChatUi({
-      onSendMessage: (channel, text) => {
-        const p = this.world?.player
-        const name = p?.characterClass.name ?? 'Hero'
-        const color = p?.characterClass.accentColor ?? '#58d3d0'
-        this.chatUi.addMessage(channel, name, text, color)
-        this.chatUi.showSpeechBubble(name, text, color)
-      },
-      onCommand: (cmd, args) => {
-        const p = this.world?.player
-        if (cmd === 'help') {
-          this.chatUi.addSystemMessage('Available commands: /class <name>, /roll, /heal, /clear, /help')
-        } else if (cmd === 'class' || cmd === 'switch') {
-          const target = args[0]?.toLowerCase()
-          if (!target) {
-            this.showCharacterSelect()
-          } else {
-            const cls = getCharacterClass(target)
-            if (cls && p) {
-              p.characterClass = cls
-              this.playerView.setClass(cls)
-              this.ui.updateMaple(p)
-              this.characterSelectUi.render(cls.id)
-              this.chatUi.addSystemMessage(`Switched character to ${cls.name} (${cls.title})!`)
-            }
-          }
-        } else if (cmd === 'roll') {
-          const roll = Math.floor(Math.random() * 100) + 1
-          const name = p?.characterClass.name ?? 'Hero'
-          this.chatUi.addMessage('local', name, `rolled ${roll} (1-100)`, '#facc15')
-        } else if (cmd === 'heal') {
-          if (p) {
-            p.hp = p.maxHp
-            p.mp = p.maxMp
-            this.ui.updateMaple(p)
-            this.chatUi.addSystemMessage('HP and MP fully restored!')
-          }
-        } else if (cmd === 'clear') {
-          this.chatUi.clear()
-        }
-      },
-    })
-    this.chatUi.attachInput(this.input)
     this.stage.scene.add(
       this.particles.mesh,
       this.race.view.group,
       this.playerView.group,
-      this.mobsView.group,
-      this.combatView.group,
     )
     this.ui.setSound(this.sfx.enabled)
     this.ui.setGhost(this.race.enabled)
@@ -286,7 +233,7 @@ export class Game {
         if (this.cardShown) this.navigateMenu()
         break
     }
-    input.keepOnly('jump', 'down', 'attack', 'skill', 'potionHp', 'potionMp')
+    input.keepOnly('jump', 'down')
   }
 
   private navigateMenu() {
@@ -322,10 +269,6 @@ export class Game {
       jumpHeld: held.jump,
       jumpPressed: first && this.input.take('jump'),
       downPressed: first && this.input.take('down'),
-      attackPressed: first && this.input.take('attack'),
-      skillPressed: first && this.input.take('skill'),
-      potionHpPressed: first && this.input.take('potionHp'),
-      potionMpPressed: first && this.input.take('potionMp'),
     }
   }
 
@@ -347,19 +290,6 @@ export class Game {
     if (events.flashJumped) {
       this.particles.burst(p.x, p.y, 'player')
       this.sfx.play('jump')
-    }
-    if (events.attacked) {
-      this.sfx.play('slash')
-    }
-    if (events.mobHit) {
-      this.sfx.play('hit')
-    }
-    if (events.playerHurt) {
-      this.sfx.play('bonk')
-    }
-    if (events.levelUp) {
-      this.sfx.play('levelUp')
-      this.combatView.triggerLevelUp(p.x, p.y)
     }
     if (events.landed > 0) {
       const strength = Math.min(1, events.landed / (MAX_FALL * 0.6))
@@ -391,7 +321,6 @@ export class Game {
     if (this.state === 'playing' || this.state === 'cleared') {
       this.ui.setCoins(world.coinCount, world.level.coins.length)
       this.ui.setTime(world.time)
-      this.ui.updateMaple(world.player)
     }
     if (this.state === 'playing') this.ui.setHint(this.hintFor(world.level, world.player.x))
     if (this.state === 'cleared' && !this.cardShown && this.clock - this.finishedAt > CLEAR_DELAY) {
@@ -427,16 +356,12 @@ export class Game {
     )
     this.race.draw(alpha)
     this.levelView?.update(this.clock, this.world, this.motion)
-    this.mobsView.update(this.world.mobManager, this.clock, dt)
-    this.combatView.update(this.world.mobManager, this.world.player, this.stage, dt)
-    this.chatUi.updateBubblePosition(this.stage.camera, window.innerWidth, window.innerHeight, x, y)
     this.particles.update(dt)
     this.stage.render()
   }
 
   private setWorld(level: Level) {
     this.levelView?.dispose()
-    this.combatView.clear()
     this.world = new World(level)
     this.playerView.setClass(this.world.player.characterClass)
     this.levelView = new LevelView(level)
@@ -473,28 +398,10 @@ export class Game {
   }
 
   private loadLevel(index: number) {
-    const prevPlayer = this.world ? { ...this.world.player } : null
     const definition = this.session.level(index)
     const level = parseLevel(definition.data)
     this.levelIndex = index
     this.setWorld(level)
-    if (prevPlayer && this.levelIndex > 0) {
-      this.world.player.level = prevPlayer.level
-      this.world.player.exp = prevPlayer.exp
-      this.world.player.maxExp = prevPlayer.maxExp
-      this.world.player.str = prevPlayer.str
-      this.world.player.dex = prevPlayer.dex
-      this.world.player.int = prevPlayer.int
-      this.world.player.luk = prevPlayer.luk
-      this.world.player.ap = prevPlayer.ap
-      this.world.player.mesos = prevPlayer.mesos
-      this.world.player.redPotions = prevPlayer.redPotions
-      this.world.player.bluePotions = prevPlayer.bluePotions
-      this.world.player.maxHp = prevPlayer.maxHp
-      this.world.player.hp = prevPlayer.maxHp
-      this.world.player.maxMp = prevPlayer.maxMp
-      this.world.player.mp = prevPlayer.maxMp
-    }
     this.race.begin(definition, level)
     this.stage.setFraming(LEVEL_FRAMING)
     this.rig.follow(level, this.world.player, this.stage)

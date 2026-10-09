@@ -42,14 +42,8 @@ export class CharacterSelectUi {
           </div>
           <p class="card-quote">“${cls.quote}”</p>
           <div class="card-weapon">
-            <span class="weapon-label">Weapon</span>
+            <span class="weapon-label">Signature look</span>
             <span class="weapon-name">${cls.weapon}</span>
-          </div>
-          <div class="card-stats">
-            <div class="stat-pill"><span class="stat-label">STR</span><span class="stat-val">${cls.stats.str}</span></div>
-            <div class="stat-pill"><span class="stat-label">DEX</span><span class="stat-val">${cls.stats.dex}</span></div>
-            <div class="stat-pill"><span class="stat-label">INT</span><span class="stat-val">${cls.stats.int}</span></div>
-            <div class="stat-pill"><span class="stat-label">LUK</span><span class="stat-val">${cls.stats.luk}</span></div>
           </div>
           <button class="button button-select-hero" type="button">
             ${isSelected ? 'Selected' : 'Choose Hero'}

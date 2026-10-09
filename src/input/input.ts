@@ -5,10 +5,6 @@
 export type Action =
   | 'jump'
   | 'down'
-  | 'attack'
-  | 'skill'
-  | 'potionHp'
-  | 'potionMp'
   | 'start'
   | 'pause'
   | 'confirm'
@@ -21,7 +17,7 @@ export type Action =
   | 'navRight'
 
 export type Device = 'keyboard' | 'touch' | 'gamepad'
-export type TouchButton = 'left' | 'right' | 'jump' | 'down' | 'attack' | 'skill'
+export type TouchButton = 'left' | 'right' | 'jump' | 'down'
 
 interface Held {
   left: boolean
@@ -53,19 +49,6 @@ export class Input {
   private readonly touch = none()
   private pad: PadState = { ...none(), up: false, a: false, b: false, start: false }
   private readonly queue = new Set<Action>()
-  private typing = false
-
-  setTyping(typing: boolean) {
-    this.typing = typing
-    if (typing) {
-      this.releaseAll()
-    }
-  }
-
-  isTyping(): boolean {
-    return this.typing
-  }
-
   constructor() {
     window.addEventListener('keydown', this.onKeyDown)
     window.addEventListener('keyup', this.onKeyUp)
@@ -115,8 +98,6 @@ export class Input {
     if (down && !was) {
       if (button === 'jump') this.queue.add('jump')
       if (button === 'down') this.queue.add('down')
-      if (button === 'attack') this.queue.add('attack')
-      if (button === 'skill') this.queue.add('skill')
     }
     this.setDevice('touch')
   }
@@ -130,7 +111,7 @@ export class Input {
   private readonly onKeyDown = (event: KeyboardEvent) => {
     if (event.metaKey || event.altKey) return
     const target = event.target
-    if (this.typing || target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return
     const code = event.code
     const control = target instanceof HTMLButtonElement || target instanceof HTMLAnchorElement
     if (control && (code === 'Enter' || code === 'NumpadEnter' || code === 'Space')) return
@@ -147,14 +128,6 @@ export class Input {
     } else if (JUMP.includes(code)) {
       press('jump')
       if (code !== 'Space') press('navUp')
-    } else if (code === 'ControlLeft' || code === 'ControlRight' || code === 'KeyJ' || code === 'KeyZ') {
-      press('attack')
-    } else if (code === 'ShiftLeft' || code === 'ShiftRight' || code === 'KeyK' || code === 'KeyX') {
-      press('skill')
-    } else if (code === 'Digit1') {
-      press('potionHp')
-    } else if (code === 'Digit2') {
-      press('potionMp')
     } else if (code === 'Escape' || code === 'KeyP') press('pause')
     else if (code === 'Enter' || code === 'NumpadEnter') {
       press('confirm')

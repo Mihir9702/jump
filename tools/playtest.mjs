@@ -238,6 +238,10 @@ try {
   await open()
   let s = await state()
   check('title screen renders', s.state === 'title' && s.screen === 'title')
+  check(
+    'no RPG HUD, chat, potions or attack controls',
+    await evaluate('!document.querySelector("#player-hud, #chat-hud, #chat-input, #hp-fill, #mp-fill, #potion-hp, #potion-mp, [data-touch=attack]")'),
+  )
   const size = await evaluate('(() => { const c = document.querySelector("canvas"); return [c.width, c.height, innerWidth, innerHeight] })()')
   check('canvas fills the window', size[0] === size[2] && size[1] === size[3], size.join(' x '))
   await shot('title')
@@ -252,6 +256,10 @@ try {
   // -------------------------------------------------------------- level 1 with real keys
   await press('Enter')
   check('Enter starts level 1', await waitFor('window.__jump.state.state === "playing" && window.__jump.state.level === 0'))
+  check(
+    'coins and timer remain available during play',
+    await evaluate('(() => { const hud = document.getElementById("hud"); return !!hud && !hud.hidden && !!document.getElementById("hud-coins") && !!document.getElementById("hud-time"); })()'),
+  )
   await sleep(300)
   s = await state()
   const start = s

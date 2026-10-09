@@ -12,9 +12,6 @@ export type Sound =
   | 'checkpoint'
   | 'flag'
   | 'click'
-  | 'slash'
-  | 'hit'
-  | 'levelUp'
 
 export class Sfx {
   enabled: boolean
@@ -121,19 +118,6 @@ export class Sfx {
         break
       case 'click':
         this.tone('sine', 880, 660, t, 0.04, 0.06)
-        break
-      case 'slash':
-        this.hiss(t, 0.09, 0.12, 1800)
-        this.tone('triangle', 440, 220, t, 0.08, 0.1)
-        break
-      case 'hit':
-        this.tone('square', 280, 140, t, 0.08, 0.14)
-        this.hiss(t, 0.06, 0.08, 1200)
-        break
-      case 'levelUp':
-        ;[523, 659, 784, 1046, 1318].forEach((f, i) =>
-          this.tone('triangle', f, f, t + i * 0.08, i === 4 ? 0.45 : 0.1, 0.16)
-        )
         break
     }
   }

@@ -8,14 +8,6 @@ export interface CharacterClass {
   color: string
   accentColor: string
   glowColor: string
-  stats: {
-    str: number
-    dex: number
-    int: number
-    luk: number
-    hp: number
-    mp: number
-  }
   accessoryType: 'daggers' | 'rings' | 'visor' | 'armor' | 'prism' | 'hat' | 'crown' | 'shield' | 'horns' | 'ribbons' | 'drums' | 'shaman'
 }
 
@@ -30,7 +22,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#6366f1',
     accentColor: '#a5b4fc',
     glowColor: '#818cf8',
-    stats: { str: 9, dex: 16, int: 8, luk: 11, hp: 100, mp: 60 },
     accessoryType: 'daggers',
   },
   {
@@ -43,7 +34,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#eab308',
     accentColor: '#fef08a',
     glowColor: '#fde047',
-    stats: { str: 10, dex: 9, int: 15, luk: 8, hp: 110, mp: 80 },
     accessoryType: 'rings',
   },
   {
@@ -56,7 +46,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#06b6d4',
     accentColor: '#22d3ee',
     glowColor: '#67e8f9',
-    stats: { str: 8, dex: 18, int: 5, luk: 14, hp: 95, mp: 50 },
     accessoryType: 'visor',
   },
   {
@@ -69,7 +58,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#475569',
     accentColor: '#94a3b8',
     glowColor: '#cbd5e1',
-    stats: { str: 18, dex: 8, int: 5, luk: 6, hp: 160, mp: 40 },
     accessoryType: 'armor',
   },
   {
@@ -82,7 +70,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#ec4899',
     accentColor: '#f472b6',
     glowColor: '#fbcfe8',
-    stats: { str: 5, dex: 7, int: 19, luk: 10, hp: 85, mp: 110 },
     accessoryType: 'prism',
   },
   {
@@ -95,7 +82,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#b45309',
     accentColor: '#fde68a',
     glowColor: '#d97706',
-    stats: { str: 15, dex: 12, int: 6, luk: 9, hp: 120, mp: 55 },
     accessoryType: 'hat',
   },
   {
@@ -108,7 +94,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#7c3aed',
     accentColor: '#c084fc',
     glowColor: '#a855f7',
-    stats: { str: 10, dex: 8, int: 17, luk: 10, hp: 105, mp: 95 },
     accessoryType: 'crown',
   },
   {
@@ -121,7 +106,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#2563eb',
     accentColor: '#93c5fd',
     glowColor: '#60a5fa',
-    stats: { str: 14, dex: 13, int: 10, luk: 7, hp: 130, mp: 65 },
     accessoryType: 'shield',
   },
   {
@@ -134,7 +118,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#ea580c',
     accentColor: '#fed7aa',
     glowColor: '#f97316',
-    stats: { str: 16, dex: 6, int: 14, luk: 6, hp: 140, mp: 75 },
     accessoryType: 'shaman',
   },
   {
@@ -147,7 +130,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#f43f5e',
     accentColor: '#ffe4e6',
     glowColor: '#fb7185',
-    stats: { str: 7, dex: 17, int: 10, luk: 11, hp: 90, mp: 70 },
     accessoryType: 'ribbons',
   },
   {
@@ -160,7 +142,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#0284c7',
     accentColor: '#7dd3fc',
     glowColor: '#38bdf8',
-    stats: { str: 13, dex: 15, int: 8, luk: 8, hp: 115, mp: 60 },
     accessoryType: 'drums',
   },
   {
@@ -173,7 +154,6 @@ export const CHARACTER_CLASSES: CharacterClass[] = [
     color: '#15803d',
     accentColor: '#86efac',
     glowColor: '#4ade80',
-    stats: { str: 11, dex: 12, int: 12, luk: 9, hp: 125, mp: 75 },
     accessoryType: 'horns',
   },
 ]
