@@ -95,13 +95,15 @@ export class Ui {
       selectLevel: actions.selectLevel,
     })
 
-    const guarded = (action: () => void) => () => {
-      if (performance.now() - this.openedAt < ARM_DELAY) return
+    const guarded = (action: () => void) => (event: MouseEvent) => {
+      // Block accidental keyboard/gamepad activation while a new panel arms,
+      // but do not discard an intentional mouse or touch click.
+      if (performance.now() - this.openedAt < ARM_DELAY && event.detail === 0) return
       action()
     }
     byId('play-button').addEventListener('click', () => actions.play())
     byId('pause-button').addEventListener('click', () => actions.pause())
-    const handlers: Record<string, () => void> = {
+    const handlers: Record<string, (event: MouseEvent) => void> = {
       characters: guarded(actions.characters),
       worlds: guarded(actions.worlds),
       timeTrial: guarded(actions.timeTrial),

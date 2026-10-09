@@ -149,6 +149,7 @@ const keyInfo = {
   KeyP: [80, 'p'],
   KeyS: [83, 's'],
   KeyW: [87, 'w'],
+  Tab: [9, 'Tab'],
 }
 async function key(type, code) {
   const [keyCode, key, typed] = keyInfo[code]
@@ -204,6 +205,11 @@ async function tapElement(selector, ms = 80) {
   await sleep(ms)
   await touch('touchEnd', x, y)
 }
+async function clickElement(selector) {
+  const { x, y } = await center(selector)
+  await send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 })
+  await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 })
+}
 const desktop = { width: 1440, height: 900, scale: 1, mobile: false }
 async function open(device = desktop, media = []) {
   await send('Emulation.setDeviceMetricsOverride', {
@@ -245,6 +251,55 @@ try {
   const size = await evaluate('(() => { const c = document.querySelector("canvas"); return [c.width, c.height, innerWidth, innerHeight] })()')
   check('canvas fills the window', size[0] === size[2] && size[1] === size[3], size.join(' x '))
   await shot('title')
+
+  // The cosmetic hero picker must behave like a real modal, not let gameplay
+  // receive movement/start inputs while it is open.
+  await evaluate('document.querySelector("[data-action=characters]").click()')
+  check(
+    'hero picker opens with keyboard focus inside',
+    await evaluate('!document.getElementById("character-screen").hidden && document.getElementById("character-screen").contains(document.activeElement)'),
+  )
+  const modalStart = await state()
+  await key('keyDown', 'ArrowRight')
+  await sleep(250)
+  await key('keyUp', 'ArrowRight')
+  const modalEnd = await state()
+  check(
+    'hero picker freezes movement and simulation',
+    modalStart.x === modalEnd.x && modalStart.y === modalEnd.y && modalStart.time === modalEnd.time,
+  )
+  check(
+    'arrow keys navigate the hero options',
+    await evaluate('document.activeElement.closest("[data-class-id]")?.dataset.classId === "atlas"'),
+  )
+  await evaluate('document.activeElement.click()')
+  check(
+    'selecting a hero preserves focus and does not start a level',
+    await evaluate('localStorage.getItem("jump:selected_class") === "atlas" && document.getElementById("character-screen").contains(document.activeElement) && window.__jump.state.state === "title"'),
+  )
+  await press('Tab')
+  check(
+    'Tab remains inside the hero picker',
+    await evaluate('document.getElementById("character-screen").contains(document.activeElement)'),
+  )
+  await press('Escape')
+  check(
+    'Escape closes the hero picker and restores focus',
+    await waitFor('document.getElementById("character-screen").hidden && document.activeElement?.dataset.action === "characters"'),
+  )
+  // A deliberate pointer click must not be ignored merely because a panel
+  // opened less than 350 ms ago. Keyboard/gamepad activations remain guarded.
+  await clickElement('#title-screen [data-action="worlds"]')
+  check('pointer click opens World Select', await waitFor('window.__jump.state.screen === "worlds"'))
+  await clickElement('#world-screen [data-action="title"]')
+  check(
+    'a quick pointer click immediately returns to title',
+    await waitFor('window.__jump.state.screen === "title"'),
+  )
+
+  // Move focus off the Heroes button so Enter starts the run, rather than
+  // activating that button's native keyboard click.
+  await evaluate('document.activeElement.blur()')
 
   // The title is a playground: run and jump on the letters
   await key('keyDown', 'ArrowRight')
@@ -457,7 +512,7 @@ try {
     window.__pad = pad
     Object.defineProperty(navigator, 'getGamepads', { configurable: true, value: () => [pad] })
   })()`)
-  const padButton = async (i, ms = 120) => {
+  const padButton = async (i, ms = 300) => {
     await evaluate(`window.__pad.buttons[${i}].pressed = true`)
     await sleep(ms)
     await evaluate(`window.__pad.buttons[${i}].pressed = false`)

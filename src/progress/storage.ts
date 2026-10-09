@@ -1,5 +1,4 @@
 import {
-  PROGRESS_VERSION,
   type ProgressData,
   type LevelResultInput,
   type RecordOutcome,
@@ -9,6 +8,7 @@ import {
   getWorldRecord,
   recordLevel,
   recordWorld,
+  sanitizeProgress,
 } from './progress.ts'
 import type { SavedGhost } from '../replay/replay.ts'
 import type { LevelDefinition } from '../worlds/worlds.ts'
@@ -37,10 +37,8 @@ function load(): ProgressData {
   const raw = readStorage(KEY)
   if (raw) {
     try {
-      const parsed = JSON.parse(raw) as Partial<ProgressData>
-      if (parsed.version === PROGRESS_VERSION && parsed.levels && parsed.worlds) {
-        return parsed as ProgressData
-      }
+      const restored = sanitizeProgress(JSON.parse(raw) as unknown)
+      if (restored) return restored
     } catch {
       // Ignore malformed saved data and start clean.
     }

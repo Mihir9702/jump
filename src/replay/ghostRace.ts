@@ -82,7 +82,7 @@ export class GhostRace {
   checkpoint(index: number, liveTime: number): number | null {
     this.splits[index] = liveTime
     const saved = this.ghostData?.splits[index]
-    return saved === undefined || !Number.isFinite(saved) ? null : liveTime - saved
+    return typeof saved === 'number' && Number.isFinite(saved) ? liveTime - saved : null
   }
 
   finish(result: LevelResultInput): RecordOutcome {

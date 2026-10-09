@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { createProgress, getLevelRecord, recordLevel, recordWorld } from '../src/progress/progress.ts'
+import {
+  compatibleGhost,
+  createProgress,
+  getLevelRecord,
+  recordLevel,
+  recordWorld,
+  sanitizeProgress,
+} from '../src/progress/progress.ts'
 import type { SavedGhost } from '../src/replay/replay.ts'
 import type { LevelDefinition } from '../src/worlds/types.ts'
 
@@ -59,5 +66,75 @@ describe('progress', () => {
       medal: null,
       ghost: null,
     })
+  })
+})
+
+describe('saved progress validation', () => {
+  it('preserves valid personal bests, coins and compatible ghosts', () => {
+    const data = createProgress()
+    recordLevel(data, level, { time: 18, coins: 4, falls: 1 }, {
+      ...ghost(18),
+      splits: [null, 9.5],
+    })
+    recordWorld(data, 'test-world', 50)
+
+    // Simulate JSON persistence, including the sparse checkpoint entry.
+    const restored = sanitizeProgress(JSON.parse(JSON.stringify(data)) as unknown)
+    assert.deepEqual(restored, data)
+    assert.deepEqual(compatibleGhost(restored!.levels[level.id]!, level)?.splits, [null, 9.5])
+  })
+
+  it('keeps good fields but rejects malformed personal bests and ghost frames', () => {
+    const restored = sanitizeProgress({
+      version: 1,
+      levels: {
+        [level.id]: {
+          bestTime: 24,
+          bestCoins: 5,
+          fewestFalls: 0,
+          medal: 'silver',
+          ghost: { ...ghost(24), replay: '2!' },
+        },
+        'test-world/broken': {
+          bestTime: 'oops',
+          bestCoins: -1,
+          fewestFalls: -5,
+          medal: 'gold',
+          ghost: 'invalid',
+        },
+      },
+      worlds: {
+        'test-world': { bestTime: 'oops' },
+        'another-world': { bestTime: 59 },
+      },
+    })
+
+    assert.ok(restored)
+    assert.deepEqual(restored.levels[level.id], {
+      bestTime: 24, bestCoins: 5, fewestFalls: 0, medal: 'silver', ghost: null,
+    })
+    assert.deepEqual(restored.levels['test-world/broken'], {
+      bestTime: null, bestCoins: 0, fewestFalls: null, medal: null, ghost: null,
+    })
+    assert.equal(restored.worlds['test-world']?.bestTime, null)
+    assert.equal(restored.worlds['another-world']?.bestTime, 59)
+  })
+
+  it('never loads invalid ghosts even when their metadata matches the level', () => {
+    const data = createProgress()
+    data.levels[level.id] = {
+      bestTime: 12,
+      bestCoins: 0,
+      fewestFalls: 0,
+      medal: 'gold',
+      ghost: { ...ghost(12), replay: '!' },
+    }
+    assert.equal(compatibleGhost(data.levels[level.id]!, level), null)
+  })
+
+  it('rejects incompatible outer schemas without trusting arbitrary objects', () => {
+    assert.equal(sanitizeProgress({version: 99, levels: {}, worlds: {}}), null)
+    assert.equal(sanitizeProgress({version: 1, levels: [], worlds: {}}), null)
+    assert.equal(sanitizeProgress(null), null)
   })
 })

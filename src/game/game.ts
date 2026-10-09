@@ -117,6 +117,9 @@ export class Game {
         }
       },
       onClose: () => {
+        // Do not carry a held movement key or menu press back into the title.
+        this.input.releaseAll()
+        this.input.clear()
         this.redraw = true
       },
     })
@@ -184,8 +187,15 @@ export class Game {
     this.input.poll()
     this.handleActions()
 
-    // The world stands still while paused and while a scene change fades in
-    if (this.state === 'paused' || this.state === 'changing' || this.state === 'worlds' || this.state === 'levels') {
+    // The hero picker is a modal: do not simulate movement behind it.
+    // Its keyboard/gamepad navigation is still handled above.
+    if (
+      this.characterSelectUi.isOpen() ||
+      this.state === 'paused' ||
+      this.state === 'changing' ||
+      this.state === 'worlds' ||
+      this.state === 'levels'
+    ) {
       if (this.redraw) this.draw(1, 0)
       this.redraw = false
       return
@@ -207,6 +217,18 @@ export class Game {
   // dropped, except jump and down, which the next simulation step takes.
   private handleActions() {
     const input = this.input
+    if (this.characterSelectUi.isOpen()) {
+      if (input.take('pause') || input.take('back')) {
+        this.characterSelectUi.close()
+      } else {
+        if (input.take('navUp') || input.take('navLeft')) this.characterSelectUi.moveFocus(-1)
+        if (input.take('navDown') || input.take('navRight')) this.characterSelectUi.moveFocus(1)
+        if (input.take('confirm')) this.characterSelectUi.activateFocused()
+      }
+      // Ignore jump/start and other inputs while selecting an appearance.
+      input.clear()
+      return
+    }
     if (input.take('mute')) this.toggleSound()
     switch (this.state) {
       case 'title':
@@ -382,7 +404,11 @@ export class Game {
   }
 
   private showCharacterSelect() {
+    // Freeze the title playground and discard any held input before opening.
+    this.input.releaseAll()
+    this.input.clear()
     this.characterSelectUi.open(this.world?.player?.characterClass.id)
+    this.redraw = true
   }
 
   private loadTitle() {
